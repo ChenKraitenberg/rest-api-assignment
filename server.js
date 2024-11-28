@@ -31,5 +31,5 @@ app.get("/", (req, res) => {
 });
 
 // נתיבים לפוסטים
-const postsRoutes = require("./routes/postRoutes");
+const postsRoutes = require("./routes/postsRoutes");
 app.use("/posts", postsRoutes); // בקשות שמתחילות ב-/posts ינותבו ל-postsRoutes
