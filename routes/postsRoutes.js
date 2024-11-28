@@ -3,7 +3,7 @@ const router = express.Router();
 const postsController = require("../controllers/postsController");
 
 // נתיב להוספת פוסט חדש
-router.post("/create", postsController.addPost);
+router.post("/", postsController.addPost);
 
 // נתיב לבדיקה שהנתיב הראשי לפוסטים פעיל
 router.get("/", (req, res) => {
