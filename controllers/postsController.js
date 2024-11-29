@@ -32,4 +32,17 @@ const getPostById = async (req, res) => {
   }
 };
 
-module.exports = { addPost, getAllPosts, getPostById };
+
+const getPostBySender = async (req, res) => {
+  try {
+    const post = await Posts.find({ owner: req.params.owner });
+    if (!post) {
+      return res.status(404).send("Post not found");
+    }
+    res.status(200).send(post);
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+};
+
+module.exports = { addPost, getAllPosts, getPostById, getPostBySender};
