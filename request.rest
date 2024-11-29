@@ -1,16 +1,7 @@
-###
+### Root Endpoint
 GET http://localhost:3000
 
-### get all posts
-GET http://localhost:3000/posts
-
-### get post by id
-GET http://localhost:3000/posts/6748c54e0ce42e38e013d03c
-
-### get post by owner
-GET http://localhost:3000/posts?owner=avital
-
-### create a post
+### Add a New Post
 POST http://localhost:3000/posts
 Content-Type: application/json
 
@@ -20,7 +11,16 @@ Content-Type: application/json
   "owner": "chen"
 }
 
-### update a post
+### Get All Posts
+GET http://localhost:3000/posts
+
+### Get Post by ID
+GET http://localhost:3000/posts/6748c54e0ce42e38e013d03c
+
+### Get Post by Owner
+GET http://localhost:3000/posts?owner=avital
+
+### Update a Post
 PUT http://localhost:3000/posts/67499a3d9581b8edfee52724
 Content-Type: application/json
 
@@ -29,23 +29,23 @@ Content-Type: application/json
   "content": "This is the updated content of the post"
 }
 
-### create a new comment on a post
+### Add a New Comment on a Post
 POST http://localhost:3000/comments
 Content-Type: application/json
 
 {
-    "postId": "6749c8f98eca9d034f059826",
-    "content": "im coming!!!!!",
-    "author": "avital"
+  "postId": "6749c8f98eca9d034f059826",
+  "content": "im coming!!!!!",
+  "author": "avital"
 }
 
-### create a new comment
+### Get All Comments
 GET http://localhost:3000/comments
 
-### get all comments by a post id
+### Get All Comments by Post ID
 GET http://localhost:3000/comments?postId=6749c45b905aafe29e171b8f
 
-### update a comment
+### Update a Comment
 PUT http://localhost:3000/comments/6749c90d8eca9d034f059828
 Content-Type: application/json
 
@@ -53,5 +53,5 @@ Content-Type: application/json
   "content": "not coming!!!"
 }
 
-### delete a comment
+### Delete a Comment
 DELETE http://localhost:3000/comments/6749c90d8eca9d034f059828
