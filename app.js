@@ -1,6 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const postRoutes = require("./routes/postsRoutes");
+const postsRoutes = require("./routes/postsRoutes");
 //const commentRoutes = require("./routes/commentRoutes");
 
 const app = express();
@@ -9,7 +9,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // Routes
-app.use("/posts", postRoutes);
-//app.use("/comments", commentRoutes);
+app.use("/posts", postsRoutes);
+
 
 module.exports = app;

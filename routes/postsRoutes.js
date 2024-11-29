@@ -10,4 +10,7 @@ router.get("/", (req, res) => {
   res.send("Posts route works!");
 });
 
+// נתיב לקבלת כל הפוסטים
+router.get("/", postsController.getAllPosts);
+
 module.exports = router;
