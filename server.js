@@ -8,11 +8,10 @@ app.use(express.json());
 
 // משתני סביבה
 const PORT = process.env.PORT;
-const DB_CONNECT = process.env.DB_CONNECT;
 
 // חיבור ל-MongoDB
 mongoose
-  .connect("mongodb://localhost:27017/mydb")
+  .connect(process.env.DB_CONNECT)
   .then(() => {
     console.log("Connected to MongoDB");
 
@@ -33,3 +32,5 @@ app.get("/", (req, res) => {
 // נתיבים לפוסטים
 const postsRoutes = require("./routes/postsRoutes");
 app.use("/posts", postsRoutes); // בקשות שמתחילות ב-/posts ינותבו ל-postsRoutes
+
+// נתיבים לתגובות
