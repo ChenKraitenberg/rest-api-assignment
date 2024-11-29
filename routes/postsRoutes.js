@@ -5,12 +5,10 @@ const postsController = require("../controllers/postsController");
 // נתיב להוספת פוסט חדש
 router.post("/", postsController.addPost);
 
-// נתיב לבדיקה שהנתיב הראשי לפוסטים פעיל
-router.get("/", (req, res) => {
-  res.send("Posts route works!");
-});
-
 // נתיב לקבלת כל הפוסטים
 router.get("/", postsController.getAllPosts);
+
+// נתיב לקבלת פוסט לפי המזהה
+router.get("/:id", postsController.getPostById);
 
 module.exports = router;

@@ -6,4 +6,5 @@ const postSchema = new mongoose.Schema({
   owner: String,
 });
 
-module.exports = mongoose.model("Post", postSchema);
+const Posts = mongoose.model("posts", postSchema);
+module.exports = Posts;
