@@ -52,3 +52,6 @@ Content-Type: application/json
 {
   "content": "not coming!!!"
 }
+
+### delete a comment
+DELETE http://localhost:3000/comments/6749c90d8eca9d034f059828
