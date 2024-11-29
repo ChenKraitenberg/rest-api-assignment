@@ -34,3 +34,5 @@ const postsRoutes = require("./routes/postsRoutes");
 app.use("/posts", postsRoutes); // בקשות שמתחילות ב-/posts ינותבו ל-postsRoutes
 
 // נתיבים לתגובות
+const commentRoutes = require("./routes/commentsRoutes");
+app.use("/comments", commentRoutes); // בקשות שמתחילות ב-/comments ינותבו ל-commentRoutes

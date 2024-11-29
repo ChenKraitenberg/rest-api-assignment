@@ -10,6 +10,6 @@ app.use(bodyParser.json());
 
 // Routes
 app.use("/posts", postsRoutes);
-
+app.use("/comments", commentRoutes);
 
 module.exports = app;
