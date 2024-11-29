@@ -9,3 +9,12 @@ Content-Type: application/json
 
 ###
 GET http://localhost:3000/posts/67499a3d9581b8edfee52724
+
+###
+PUT http://localhost:3000/posts/67499a3d9581b8edfee52724
+Content-Type: application/json
+
+{
+  "title": "Updated Post Title",
+  "content": "This is the updated content of the post"
+}
