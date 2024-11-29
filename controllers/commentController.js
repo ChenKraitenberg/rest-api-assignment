@@ -30,7 +30,6 @@ const getAllComments = async (req, res) => {
   }
 };
 
-
 const getCommentsByPostId = async (req, res) => {
   try {
     const comments = await Comments.find({ postId: req.params.postId });
@@ -43,8 +42,28 @@ const getCommentsByPostId = async (req, res) => {
   }
 };
 
+const updateComment = async (req, res) => {
+  try {
+    const comment = await Comments.findByIdAndUpdate(
+      req.params.commentId,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    if (!comment) {
+      return res.status(404).send("Comment not found");
+    }
+    res.status(200).send(comment);
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+};
+
 module.exports = {
   addComment,
   getAllComments,
-  getCommentsByPostId
+  getCommentsByPostId,
+  updateComment,
 };
