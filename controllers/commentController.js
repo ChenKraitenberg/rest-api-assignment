@@ -30,7 +30,21 @@ const getAllComments = async (req, res) => {
   }
 };
 
+
+const getCommentsByPostId = async (req, res) => {
+  try {
+    const comments = await Comments.find({ postId: req.params.postId });
+    if (!comments) {
+      return res.status(404).send("Comments not found");
+    }
+    res.status(200).send(comments);
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+};
+
 module.exports = {
   addComment,
   getAllComments,
+  getCommentsByPostId
 };
