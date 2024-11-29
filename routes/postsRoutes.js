@@ -14,4 +14,7 @@ router.get("/:id", postsController.getPostById);
 // נתיב לקבלת פוסט לפי השולח
 router.get("/owner/:owner", postsController.getPostBySender);
 
+// נתיב לעדכון פוסט לפי המזהה
+router.put("/:id", postsController.updatePost);
+
 module.exports = router;
