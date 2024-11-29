@@ -1,2 +1,11 @@
 ###
-GET http://localhost:3000/posts
+POST http://localhost:3000/posts
+Content-Type: application/json
+
+{
+    "title": "My sec post",
+    "content": "This is my sec post"
+}
+
+###
+GET http://localhost:3000/posts/67499a3d9581b8edfee52724
