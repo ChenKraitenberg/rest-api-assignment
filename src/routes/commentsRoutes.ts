@@ -1,16 +1,21 @@
-const express = require("express");
-const router = express.Router();
-const commentController = require("../controllers/commentController");
+import { Router } from "express";
+import * as commentController from "../controllers/commentController";
 
-//create a new comment
+const router: Router = Router();
+
+// Create a new comment
 router.post("/", commentController.addComment);
-//get all comments
+
+// Get all comments
 router.get("/", commentController.getAllComments);
-//get comments by post id
+
+// Get comments by post ID
 router.get("/:postId", commentController.getCommentsByPostId);
-//update comment
+
+// Update comment
 router.put("/:commentId", commentController.updateComment);
-//delete comment
+
+// Delete comment
 router.delete("/:commentId", commentController.deleteComment);
 
-module.exports = router;
+export default router;

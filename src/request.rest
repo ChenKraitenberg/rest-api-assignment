@@ -15,18 +15,18 @@ Content-Type: application/json
 GET http://localhost:3000/posts
 
 ### Get Post by ID
-GET http://localhost:3000/posts/6748c54e0ce42e38e013d03c
+GET http://localhost:3000/posts/6749d9b4c81ceefb853d0596
 
 ### Get Post by Owner
-GET http://localhost:3000/posts?owner=avital
+GET http://localhost:3000/posts?owner=chen
 
 ### Update a Post
-PUT http://localhost:3000/posts/67499a3d9581b8edfee52724
+PUT http://localhost:3000/posts/6749d9b4c81ceefb853d0596
 Content-Type: application/json
 
 {
-  "title": "Updated Post Title",
-  "content": "This is the updated content of the post"
+  "title": "party cancalled",
+  "content": "we are sorry to inform you that the party is cancalled"
 }
 
 ### Add a New Comment on a Post
@@ -34,24 +34,24 @@ POST http://localhost:3000/comments
 Content-Type: application/json
 
 {
-  "postId": "6749c8f98eca9d034f059826",
-  "content": "im coming!!!!!",
-  "author": "avital"
+  "postId": "6749d9b4c81ceefb853d0596",
+  "content": "hello",
+  "author": "moshe"
 }
 
 ### Get All Comments
 GET http://localhost:3000/comments
 
 ### Get All Comments by Post ID
-GET http://localhost:3000/comments?postId=6749c45b905aafe29e171b8f
+GET http://localhost:3000/comments?6749d9b4c81ceefb853d0596
 
 ### Update a Comment
-PUT http://localhost:3000/comments/6749c90d8eca9d034f059828
+PUT http://localhost:3000/comments/6749d9ddc81ceefb853d059c
 Content-Type: application/json
 
 {
-  "content": "not coming!!!"
+  "content": "bye!"
 }
 
 ### Delete a Comment
-DELETE http://localhost:3000/comments/6749c90d8eca9d034f059828
+DELETE http://localhost:3000/comments/6749d9ddc81ceefb853d059c

@@ -1,6 +1,7 @@
-const express = require("express");
-const router = express.Router();
-const postsController = require("../controllers/postsController");
+import { Router } from "express";
+import * as postsController from "../controllers/postsController";
+
+const router: Router = Router();
 
 // נתיב להוספת פוסט חדש
 router.post("/", postsController.addPost);
@@ -17,4 +18,4 @@ router.get("/owner/:owner", postsController.getPostBySender);
 // נתיב לעדכון פוסט לפי המזהה
 router.put("/:id", postsController.updatePost);
 
-module.exports = router;
+export default router;
