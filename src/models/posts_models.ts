@@ -1,20 +1,23 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose from "mongoose";
 
-// Interface for the Post document
-export interface IPost extends Document {
-  title: string; // Title of the post
-  content: string; // Content of the post
-  owner: string; // Owner of the post
+export interface iPost {
+  title: string;
+  content: string;
+  owner: string;
 }
 
-// Schema definition
-const postSchema: Schema<IPost> = new mongoose.Schema({
-  title: { type: String, required: true }, // Title of the post
-  content: { type: String, required: true }, // Content of the post
-  owner: { type: String, required: true }, // Owner of the post
+const postSchema = new mongoose.Schema<iPost>({
+  title: {
+    type: String,
+    required: true,
+  },
+  content: String,
+  owner: {
+    type: String,
+    required: true,
+  },
 });
 
-// Create model
-const Posts: Model<IPost> = mongoose.model<IPost>("Posts", postSchema);
+const postModel = mongoose.model<iPost>("posts", postSchema);
 
-export default Posts;
+export default postModel;
