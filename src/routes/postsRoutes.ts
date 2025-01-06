@@ -1,21 +1,13 @@
-import { Router } from "express";
-import * as postsController from "../controllers/postsController";
+import express from "express";
+const router = express.Router();
+import postController from "../controllers/postsController";
 
-const router: Router = Router();
+router.get("/", postController.getAll.bind(postController));
 
-// נתיב להוספת פוסט חדש
-router.post("/", postsController.addPost);
+router.get("/:id",(req, res) => {
+    postController.getById(req, res);
+    });
 
-// נתיב לקבלת כל הפוסטים
-router.get("/", postsController.getAllPosts);
-
-// נתיב לקבלת פוסט לפי המזהה
-router.get("/:id", postsController.getPostById);
-
-// נתיב לקבלת פוסט לפי השולח
-router.get("/owner/:owner", postsController.getPostBySender);
-
-// נתיב לעדכון פוסט לפי המזהה
-router.put("/:id", postsController.updatePost);
+router.post("/", postController.create.bind(postController));
 
 export default router;

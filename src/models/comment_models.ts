@@ -1,25 +1,26 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose from "mongoose";
 
-// Interface for the Comment document
-export interface IComment extends Document {
-  postId: mongoose.Types.ObjectId; // Reference to the Post model
-  content: string; // Comment content
-  author?: string; // Comment author (optional)
-  createdAt?: Date; // Date when the comment was created
+export interface iComment {
+  comment: string;
+  postId: string;
+  owner: string;
 }
 
-// Schema definition
-const commentSchema: Schema<IComment> = new mongoose.Schema({
-  postId: { type: mongoose.Schema.Types.ObjectId, ref: "Post", required: true }, // Reference to Post model
-  content: { type: String, required: true }, // Comment content
-  author: { type: String }, // Comment author
-  createdAt: { type: Date, default: Date.now }, // Default to current date
+const commentsSchema = new mongoose.Schema<iComment>({
+  comment: {
+    type: String,
+    required: true,
+  },
+  postId: {
+    type: String,
+    required: true,
+  },
+  owner: {
+    type: String,
+    required: true,
+  },
 });
 
-// Create model
-const Comments: Model<IComment> = mongoose.model<IComment>(
-  "Comments",
-  commentSchema
-);
+const commentsModel = mongoose.model<iComment>("comments", commentsSchema);
 
-export default Comments;
+export default commentsModel;
