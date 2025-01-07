@@ -6,6 +6,7 @@ dotenv.config();
 import mongoose from "mongoose";
 import postsRoutes from "./routes/postsRoutes";
 import commentsRoutes from "./routes/commentsRoutes";
+import userRoutes from "./routes/userRoutes";
 
 // must be implement later authRoutes , postsRoutes, commentsRoutes
 // import authRoutes from "./routes/auth_routes";
@@ -20,6 +21,7 @@ app.get("/", (req, res) => {
 
 app.use("/posts", postsRoutes);
 app.use("/comments", commentsRoutes);
+app.use("/users", userRoutes);
 
 // app.use("/auth", authRoutes); - must be implement later
 

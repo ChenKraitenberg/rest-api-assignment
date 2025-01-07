@@ -54,3 +54,33 @@ Content-Type: application/json
 
 ### Delete a Comment
 DELETE http://localhost:3000/comments/677d3fa9323fc02fc6d3e347
+
+### 
+
+
+### add a new user
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "email": "Chenkrai@gmail.com",
+  "password": "123456"
+}
+
+### get all users
+GET http://localhost:3000/users
+
+### get user by id
+GET http://localhost:3000/users/677d46b4edeef5ab4bda57cc
+
+### update user
+PUT http://localhost:3000/users/677d46b4edeef5ab4bda57cc
+Content-Type: application/json
+
+{
+  "email": "Chen123@gmail.com",
+  "password": "123456"
+}
+
+### delete user
+DELETE http://localhost:3000/users/677d46b4edeef5ab4bda57cc

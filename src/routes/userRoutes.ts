@@ -15,5 +15,7 @@ import userController from "../controllers/userController";
 router.get("/", userController.getAll.bind(userController)); // שליפת כל המשתמשים
 router.get("/:id", userController.getById.bind(userController)); // שליפת משתמש לפי מזהה
 router.post("/", userController.create.bind(userController)); // יצירת משתמש חדש
+router.put("/:id", userController.update.bind(userController)); // עדכון משתמש קיים
+router.delete("/:id", userController.delete.bind(userController)); // מחיקת משתמש קיים
 
 export default router;
