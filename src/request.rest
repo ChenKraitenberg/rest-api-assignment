@@ -2,26 +2,25 @@
 GET http://localhost:3000
 
 ### Add a New Post
-POST http://localhost:3000/posts
+POST http://localhost:3000/posts/Avital
 Content-Type: application/json
 
 {
   "title": "party",
-  "content": "welcome to party",
-  "owner": "chen"
+  "content": "whats up"
 }
 
 ### Get All Posts
 GET http://localhost:3000/posts
 
 ### Get Post by ID
-GET http://localhost:3000/posts/6749d9b4c81ceefb853d0596
+GET http://localhost:3000/posts/677d389414a656309ed97965
 
 ### Get Post by Owner
-GET http://localhost:3000/posts?owner=chen
+GET http://localhost:3000/posts?owner=Chen
 
 ### Update a Post
-PUT http://localhost:3000/posts/6749d9b4c81ceefb853d0596
+PUT http://localhost:3000/posts/677d389414a656309ed97965
 Content-Type: application/json
 
 {
@@ -34,19 +33,19 @@ POST http://localhost:3000/comments
 Content-Type: application/json
 
 {
+  "comment": "hello",
   "postId": "6749d9b4c81ceefb853d0596",
-  "content": "hello",
-  "author": "moshe"
+  "owner": "Chen"
 }
 
 ### Get All Comments
 GET http://localhost:3000/comments
 
 ### Get All Comments by Post ID
-GET http://localhost:3000/comments?6749d9b4c81ceefb853d0596
+GET http://localhost:3000/comments?677d3fa9323fc02fc6d3e347
 
 ### Update a Comment
-PUT http://localhost:3000/comments/6749d9ddc81ceefb853d059c
+PUT http://localhost:3000/comments/677d3fa9323fc02fc6d3e347
 Content-Type: application/json
 
 {
@@ -54,4 +53,4 @@ Content-Type: application/json
 }
 
 ### Delete a Comment
-DELETE http://localhost:3000/comments/6749d9ddc81ceefb853d059c
+DELETE http://localhost:3000/comments/677d3fa9323fc02fc6d3e347
