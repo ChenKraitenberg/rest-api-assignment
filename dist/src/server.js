@@ -11,6 +11,8 @@ dotenv_1.default.config();
 const mongoose_1 = __importDefault(require("mongoose"));
 const postsRoutes_1 = __importDefault(require("./routes/postsRoutes"));
 const commentsRoutes_1 = __importDefault(require("./routes/commentsRoutes"));
+const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
+const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 // must be implement later authRoutes , postsRoutes, commentsRoutes
 // import authRoutes from "./routes/auth_routes";
 // import swaggerJsDoc from "swagger-jsdoc";
@@ -22,7 +24,8 @@ app.get("/", (req, res) => {
 });
 app.use("/posts", postsRoutes_1.default);
 app.use("/comments", commentsRoutes_1.default);
-// app.use("/auth", authRoutes); - must be implement later
+app.use("/auth", authRoutes_1.default);
+app.use("/users", userRoutes_1.default);
 const initApp = () => {
     return new Promise((resolve, reject) => {
         const dbUri = process.env.DB_CONNECT;

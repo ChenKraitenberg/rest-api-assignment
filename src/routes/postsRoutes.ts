@@ -1,6 +1,7 @@
 import express from "express";
 const router = express.Router();
 import postController from "../controllers/postsController";
+import { authMiddleware } from "../controllers/authController";
 
 // get all posts
 router.get("/", postController.getAll.bind(postController));
@@ -11,12 +12,12 @@ router.get("/:id", (req, res) => {
 });
 
 // create post for user by id
-router.post("/:userId", postController.create.bind(postController));
+router.post("/:userId", authMiddleware, postController.create.bind(postController));
 
 // update post
 router.put("/:id", postController.update.bind(postController));
 
 // delete post
-router.delete("/:id", postController.delete.bind(postController));
+router.delete("/:id", authMiddleware, postController.delete.bind(postController));
 
 export default router;

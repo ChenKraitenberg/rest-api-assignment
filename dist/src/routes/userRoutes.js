@@ -6,13 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const userController_1 = __importDefault(require("../controllers/userController"));
-//import authController from "../controllers/auth_controller";
-//router.post("/register", authController.register);
-//router.post("/login", authController.login);
-//router.post("/logout", authController.logout);
-//router.post("/refresh", authController.refresh);
+const authController_1 = require("../controllers/authController");
 router.get("/", userController_1.default.getAll.bind(userController_1.default)); // שליפת כל המשתמשים
 router.get("/:id", userController_1.default.getById.bind(userController_1.default)); // שליפת משתמש לפי מזהה
-router.post("/", userController_1.default.create.bind(userController_1.default)); // יצירת משתמש חדש
+router.post("/", authController_1.authMiddleware, userController_1.default.create.bind(userController_1.default)); // יצירת משתמש חדש
+router.put("/:id", userController_1.default.update.bind(userController_1.default)); // עדכון משתמש קיים
+router.delete("/:id", authController_1.authMiddleware, userController_1.default.delete.bind(userController_1.default)); // מחיקת משתמש קיים
 exports.default = router;
 //# sourceMappingURL=userRoutes.js.map

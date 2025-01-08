@@ -29,7 +29,6 @@ class PostController extends baseController_1.BaseController {
             _super.create.call(this, req, res);
         });
     }
-    ;
 }
 exports.default = new PostController();
 //# sourceMappingURL=postsController.js.map

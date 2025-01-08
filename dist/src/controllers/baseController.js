@@ -65,6 +65,44 @@ class BaseController {
             }
         });
     }
+    update(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const id = req.params.id;
+            try {
+                const post = yield this.model.findByIdAndUpdate(id, req.body);
+                if (post === null) {
+                    return res.status(404).send("Post not found");
+                }
+                else {
+                    return res.status(200).send(post);
+                }
+            }
+            catch (err) {
+                console.log(err);
+                res.status(400);
+                res.send(err);
+            }
+        });
+    }
+    delete(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const id = req.params.id;
+            try {
+                const post = yield this.model.findByIdAndDelete(id);
+                if (post === null) {
+                    return res.status(404).send("Post not found");
+                }
+                else {
+                    return res.status(200).send(post);
+                }
+            }
+            catch (err) {
+                console.log(err);
+                res.status(400);
+                res.send(err);
+            }
+        });
+    }
 }
 exports.BaseController = BaseController;
 const createController = (model) => {
