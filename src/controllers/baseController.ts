@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Model } from "mongoose";
-// implements - getAll, getById, create, update, delete
+
 export class BaseController<T> {
   model: Model<T>;
   constructor(model: Model<T>) {

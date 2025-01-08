@@ -1,6 +1,7 @@
 import express from "express";
 const router = express.Router();
 import commentsController from "../controllers/commentController";
+import { authMiddleware } from "../controllers/authController";
 
 // get all comments
 router.get("/", commentsController.getAll.bind(commentsController));
@@ -11,12 +12,12 @@ router.get("/:id", (req, res) => {
 });
 
 // create comment
-router.post("/", commentsController.create.bind(commentsController));
+router.post("/", authMiddleware, commentsController.create.bind(commentsController));
 
 // update comment
 router.put("/:id", commentsController.update.bind(commentsController));
 
 // delete comment
-router.delete("/:id", commentsController.delete.bind(commentsController));
+router.delete("/:id", authMiddleware, commentsController.delete.bind(commentsController));
 
 export default router;
