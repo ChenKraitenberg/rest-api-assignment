@@ -10,6 +10,7 @@ router.get("/", postsController_1.default.getAll.bind(postsController_1.default)
 router.get("/:id", (req, res) => {
     postsController_1.default.getById(req, res);
 });
-router.post("/", postsController_1.default.create.bind(postsController_1.default));
+//router.post("/", postController.create.bind(postController));
+router.post("/:userId", postsController_1.default.create.bind(postsController_1.default));
 exports.default = router;
 //# sourceMappingURL=postsRoutes.js.map

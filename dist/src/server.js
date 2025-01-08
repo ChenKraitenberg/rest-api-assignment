@@ -17,22 +17,30 @@ const commentsRoutes_1 = __importDefault(require("./routes/commentsRoutes"));
 // import swaggerUI from "swagger-ui-express";
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
+app.get("/", (req, res) => {
+    res.send("Welcome");
+});
 app.use("/posts", postsRoutes_1.default);
 app.use("/comments", commentsRoutes_1.default);
 // app.use("/auth", authRoutes); - must be implement later
 const initApp = () => {
     return new Promise((resolve, reject) => {
-        const db = mongoose_1.default.connection;
-        db.on("error", console.error.bind(console, "connection error:"));
-        db.once("open", function () {
-            console.log("Connected to the database");
-        });
+        const dbUri = process.env.DB_CONNECT;
+        // ודאי שהמשתנה DB_CONNECT קיים
+        if (!dbUri) {
+            console.error("Error: DB_CONNECT is not defined in the .env file");
+            reject(new Error("DB_CONNECT is not defined"));
+            return;
+        }
+        // חיבור למסד הנתונים
         mongoose_1.default
-            .connect(process.env.DB_CONNECT)
+            .connect(dbUri)
             .then(() => {
+            console.log("Connected to the database");
             resolve(app);
         })
             .catch((err) => {
+            console.error("Error connecting to the database:", err);
             reject(err);
         });
     });

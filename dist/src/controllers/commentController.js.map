@@ -1,1 +1,1 @@
-{"version":3,"file":"commentController.js","sourceRoot":"","sources":["../../../src/controllers/commentController.ts"],"names":[],"mappings":";;;;;AAAA,8EAAiE;AACjE,sEAAgD;AAChD,8CAA8C;AAE9C,MAAM,kBAAkB,GAAG,IAAA,wBAAgB,EAAW,wBAAa,CAAC,CAAC;AAErE,kBAAe,kBAAkB,CAAC"}
+{"version":3,"file":"commentController.js","sourceRoot":"","sources":["../../../src/controllers/commentController.ts"],"names":[],"mappings":";;;;;AAAA,8EAAmE;AACnE,sEAAgD;AAEhD,MAAM,kBAAkB,GAAG,IAAA,wBAAgB,EAAW,wBAAa,CAAC,CAAC;AAErE,kBAAe,kBAAkB,CAAC"}

@@ -14,6 +14,7 @@ class BaseController {
     constructor(model) {
         this.model = model;
     }
+    // פונקציה שמחזירה את כל המופעים מהדאטה בייס
     getAll(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const ownerFilter = req.query.owner;
@@ -33,7 +34,6 @@ class BaseController {
             }
         });
     }
-    ;
     getById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const id = req.params.id;
@@ -52,7 +52,6 @@ class BaseController {
             }
         });
     }
-    ;
     create(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(req.body);
@@ -66,7 +65,6 @@ class BaseController {
             }
         });
     }
-    ;
 }
 exports.BaseController = BaseController;
 const createController = (model) => {
