@@ -11,10 +11,12 @@ const commentsSchema = new mongoose_1.default.Schema({
     },
     postId: {
         type: String,
+        ref: "posts",
         required: true,
     },
     owner: {
         type: String,
+        ref: "users",
         required: true,
     },
 });

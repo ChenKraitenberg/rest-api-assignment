@@ -15,6 +15,8 @@ router.get("/:id", (req, res) => {
 });
 // create post for user by id
 router.post("/:userId", authController_1.authMiddleware, postsController_1.default.create.bind(postsController_1.default));
+// create post
+router.post("/", authController_1.authMiddleware, postsController_1.default.create.bind(postsController_1.default));
 // update post
 router.put("/:id", postsController_1.default.update.bind(postsController_1.default));
 // delete post
