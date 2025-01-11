@@ -12,12 +12,23 @@ router.get("/:id", (req, res) => {
 });
 
 // create post for user by id
-router.post("/:userId", authMiddleware, postController.create.bind(postController));
+router.post(
+  "/:userId",
+  authMiddleware,
+  postController.create.bind(postController)
+);
+
+// create post
+router.post("/", authMiddleware, postController.create.bind(postController));
 
 // update post
 router.put("/:id", postController.update.bind(postController));
 
 // delete post
-router.delete("/:id", authMiddleware, postController.delete.bind(postController));
+router.delete(
+  "/:id",
+  authMiddleware,
+  postController.delete.bind(postController)
+);
 
 export default router;

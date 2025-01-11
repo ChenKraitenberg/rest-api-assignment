@@ -13,10 +13,12 @@ const commentsSchema = new mongoose.Schema<iComment>({
   },
   postId: {
     type: String,
+    ref: "posts",
     required: true,
   },
   owner: {
     type: String,
+    ref: "users",
     required: true,
   },
 });

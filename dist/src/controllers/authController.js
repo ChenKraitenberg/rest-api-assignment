@@ -38,11 +38,11 @@ const generateTokens = (user) => {
     const rand = Math.random();
     const accessToken = jsonwebtoken_1.default.sign({
         _id: user._id,
-        rand: rand
+        rand: rand,
     }, process.env.TOKEN_SECRET, { expiresIn: process.env.TOKEN_EXPIRATION });
     const refreshToken = jsonwebtoken_1.default.sign({
         _id: user._id,
-        rand: rand
+        rand: rand,
     }, process.env.TOKEN_SECRET, { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION });
     return { refreshToken: refreshToken, accessToken: accessToken };
 };
@@ -99,7 +99,8 @@ const validateRefreshToken = (refreshToken) => {
                     return;
                 }
                 //check if token exists
-                if (!user.refreshTokens || !user.refreshTokens.includes(refreshToken)) {
+                if (!user.refreshTokens ||
+                    !user.refreshTokens.includes(refreshToken)) {
                     user.refreshTokens = [];
                     yield user.save();
                     reject(err);
