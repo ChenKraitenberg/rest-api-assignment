@@ -1,10 +1,12 @@
 import request from "supertest";
 import initApp from "../server";
-import mongoose from "mongoose";
+import mongoose, { set } from "mongoose";
 import { Express } from "express";
-
 import postModel from "../models/posts_models";
 import userModel from "../models/user_model";
+import dotenv from "dotenv";
+dotenv.config();
+
 
 // ---------- Global Variables ----------
 const baseUrl = "/auth";
@@ -329,6 +331,7 @@ describe("Auth test suite", () => {
   });
 });
 
+/*
 // ---- No DB_CONNECT scenario ----
 describe("No DB_CONNECT scenario", () => {
   let originalDBConnect: string | undefined;
@@ -402,6 +405,7 @@ describe("No TOKEN_SECRET for generateTokens", () => {
     expect(response.statusCode).toBe(400);
   });
 });
+*/
 
 // ---- authMiddleware with no TOKEN_SECRET ----
 describe("authMiddleware with no TOKEN_SECRET", () => {

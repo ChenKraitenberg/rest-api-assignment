@@ -17,7 +17,7 @@ const userSchema = new mongoose_1.default.Schema({
     refreshTokens: {
         type: [String],
         default: [],
-    },
+    }
 });
 const userModel = mongoose_1.default.model("users", userSchema);
 exports.default = userModel;

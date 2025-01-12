@@ -13,10 +13,8 @@ const postsRoutes_1 = __importDefault(require("./routes/postsRoutes"));
 const commentsRoutes_1 = __importDefault(require("./routes/commentsRoutes"));
 const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
-// must be implement later authRoutes , postsRoutes, commentsRoutes
-// import authRoutes from "./routes/auth_routes";
-// import swaggerJsDoc from "swagger-jsdoc";
-// import swaggerUI from "swagger-ui-express";
+const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
+const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
@@ -26,6 +24,20 @@ app.use("/posts", postsRoutes_1.default);
 app.use("/comments", commentsRoutes_1.default);
 app.use("/auth", authRoutes_1.default);
 app.use("/users", userRoutes_1.default);
+const options = {
+    definition: {
+        openapi: "3.0.0",
+        info: {
+            title: "Web Dev 2025 REST API",
+            version: "1.0.0",
+            description: "REST server including authentication using JWT",
+        },
+        servers: [{ url: "http://localhost:3000", },],
+    },
+    apis: ["./src/routes/*.ts"],
+};
+const specs = (0, swagger_jsdoc_1.default)(options);
+app.use("/api-docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(specs));
 const initApp = () => {
     return new Promise((resolve, reject) => {
         const dbUri = process.env.DB_CONNECT;
