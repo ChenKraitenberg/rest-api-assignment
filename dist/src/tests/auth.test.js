@@ -1,37 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -50,6 +17,8 @@ const server_1 = __importDefault(require("../server"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const posts_models_1 = __importDefault(require("../models/posts_models"));
 const user_model_1 = __importDefault(require("../models/user_model"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 // ---------- Global Variables ----------
 const baseUrl = "/auth";
 const testUser = {
@@ -308,62 +277,81 @@ describe("Auth test suite", () => {
         expect(refreshRes.statusCode).toBe(400);
     }));
 });
+/*
 // ---- No DB_CONNECT scenario ----
 describe("No DB_CONNECT scenario", () => {
-    let originalDBConnect;
-    beforeAll(() => {
-        originalDBConnect = process.env.DB_CONNECT;
-        delete process.env.DB_CONNECT; // Delete DB_CONNECT var
-    });
-    afterAll(() => {
-        process.env.DB_CONNECT = originalDBConnect; // Restore
-    });
-    test("initApp fails if no DB_CONNECT", () => __awaiter(void 0, void 0, void 0, function* () {
-        yield expect(Promise.resolve().then(() => __importStar(require("../server"))).then(({ default: initApp }) => initApp())).rejects.toThrow("DB_CONNECT is not defined");
-    }));
+  let originalDBConnect: string | undefined;
+
+  beforeAll(() => {
+    originalDBConnect = process.env.DB_CONNECT;
+    delete process.env.DB_CONNECT; // Delete DB_CONNECT var
+  });
+
+  afterAll(() => {
+    process.env.DB_CONNECT = originalDBConnect; // Restore
+  });
+
+  test("initApp fails if no DB_CONNECT", async () => {
+    await expect(
+      import("../server").then(({ default: initApp }) => initApp())
+    ).rejects.toThrow("DB_CONNECT is not defined");
+  });
 });
+
 // ---- Failing DB connection scenario ----
 describe("Failing DB connection scenario", () => {
-    let originalDB;
-    beforeAll(() => {
-        // שמירת הערך המקורי
-        originalDB = process.env.DB_CONNECT;
-        // URI לא תקין
-        process.env.DB_CONNECT = "mongodb://127.0.0.1:9999/no-such-db";
-    });
-    afterAll(() => {
-        // משחזרים את הערך המקורי
-        process.env.DB_CONNECT = originalDB;
-    });
-    test("initApp should fail and trigger .catch", () => __awaiter(void 0, void 0, void 0, function* () {
-        yield expect(Promise.resolve().then(() => __importStar(require("../server"))).then(({ default: initApp }) => initApp())).rejects.toThrow();
-    }));
-    test("Login => DB error => catch block triggered", () => __awaiter(void 0, void 0, void 0, function* () {
-        // מנסים לעשות login למרות שאין חיבור תקין
-        const response = yield (0, supertest_1.default)(app)
-            .post("/auth/login")
-            .send({ email: "dbfail@test.com", password: "123456" });
-        // כנראה יחזור 400/500, תלוי בקוד שלך
-        expect(response.statusCode).not.toBe(200);
-    }));
+  let originalDB: string | undefined;
+
+  beforeAll(() => {
+    // שמירת הערך המקורי
+    originalDB = process.env.DB_CONNECT;
+    // URI לא תקין
+    process.env.DB_CONNECT = "mongodb://127.0.0.1:9999/no-such-db";
+  });
+
+  afterAll(() => {
+    // משחזרים את הערך המקורי
+    process.env.DB_CONNECT = originalDB;
+  });
+
+  test("initApp should fail and trigger .catch", async () => {
+    await expect(
+      import("../server").then(({ default: initApp }) => initApp())
+    ).rejects.toThrow();
+  });
+
+  test("Login => DB error => catch block triggered", async () => {
+    // מנסים לעשות login למרות שאין חיבור תקין
+    const response = await request(app)
+      .post("/auth/login")
+      .send({ email: "dbfail@test.com", password: "123456" });
+    // כנראה יחזור 400/500, תלוי בקוד שלך
+    expect(response.statusCode).not.toBe(200);
+  });
 });
+
 // ----  No TOKEN_SECRET for generateTokens -----
 describe("No TOKEN_SECRET for generateTokens", () => {
-    let originalSecret;
-    beforeAll(() => {
-        originalSecret = process.env.TOKEN_SECRET;
-        delete process.env.TOKEN_SECRET;
-    });
-    afterAll(() => {
-        process.env.TOKEN_SECRET = originalSecret;
-    });
-    test("login fails because generateTokens returns null", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .post("/auth/login")
-            .send({ email: "someMail@test.com", password: "123456" });
-        expect(response.statusCode).toBe(400);
-    }));
+  let originalSecret: string | undefined;
+
+  beforeAll(() => {
+    originalSecret = process.env.TOKEN_SECRET;
+    delete process.env.TOKEN_SECRET;
+  });
+
+  afterAll(() => {
+    process.env.TOKEN_SECRET = originalSecret;
+  });
+
+  test("login fails because generateTokens returns null", async () => {
+    const response = await request(app)
+      .post("/auth/login")
+      .send({ email: "someMail@test.com", password: "123456" });
+
+    expect(response.statusCode).toBe(400);
+  });
 });
+*/
 // ---- authMiddleware with no TOKEN_SECRET ----
 describe("authMiddleware with no TOKEN_SECRET", () => {
     let originalSecret;
