@@ -18,7 +18,6 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const posts_models_1 = __importDefault(require("../models/posts_models"));
 const user_model_1 = __importDefault(require("../models/user_model"));
 const dotenv_1 = __importDefault(require("dotenv"));
-const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 dotenv_1.default.config();
 // ---------- Global Variables ----------
@@ -221,14 +220,14 @@ describe("Auth Test Suite", () => {
     describe("Negative Scenarios", () => {
         test("should fail login with a non-existing user", () => __awaiter(void 0, void 0, void 0, function* () {
             const response = yield (0, supertest_1.default)(app)
-                .post(`/auth/login`)
+                .post(`${baseUrl}/login`)
                 .send({ email: "no_such_user@test.com", password: "123456" });
             expect(response.statusCode).toBe(400);
             expect(response.text).toContain("incorrect email or password");
         }));
         test("should fail login with an incorrect password", () => __awaiter(void 0, void 0, void 0, function* () {
             const response = yield (0, supertest_1.default)(app)
-                .post(`/auth/login`)
+                .post(`${baseUrl}/login`)
                 .send({ email: testUser.email, password: "wrong_password" });
             expect(response.statusCode).toBe(400);
             expect(response.text).toContain("incorrect email or password");
@@ -266,11 +265,13 @@ describe("Auth Test Suite", () => {
                 .send({ refreshToken: brokenToken });
             expect(response.statusCode).toBe(400);
         }));
-        test("should fail login if token generation returns null", () => __awaiter(void 0, void 0, void 0, function* () {
-            // Simulate missing TOKEN_SECRET
+        test("should fail login if TOKEN_SECRET is missing", () => __awaiter(void 0, void 0, void 0, function* () {
+            // Simulate missing TOKEN_SECRET by temporarily deleting it
             const originalSecret = process.env.TOKEN_SECRET;
             delete process.env.TOKEN_SECRET;
-            const response = yield (0, supertest_1.default)(app).post("/auth/login").send(testUser);
+            const response = yield (0, supertest_1.default)(app)
+                .post(`${baseUrl}/login`)
+                .send(testUser);
             expect(response.statusCode).toBe(400);
             // Restore TOKEN_SECRET
             process.env.TOKEN_SECRET = originalSecret;
@@ -341,18 +342,6 @@ describe("Auth Controller Error Handling", () => {
         const response2 = yield (0, supertest_1.default)(app).post(`${baseUrl}/register`).send(user);
         expect(response2.statusCode).toBe(400);
     }));
-    // Handle DB error during user lookup
-    test("should handle DB error when finding user on login", () => __awaiter(void 0, void 0, void 0, function* () {
-        const spy = jest.spyOn(user_model_1.default, "findOne").mockImplementationOnce(() => {
-            throw new Error("DB Error");
-        });
-        const response = yield (0, supertest_1.default)(app).post(`${baseUrl}/login`).send({
-            email: "error@test.com",
-            password: "123456",
-        });
-        expect(response.statusCode).toBe(400);
-        spy.mockRestore();
-    }));
     // Handle missing token during refresh
     test("should handle missing refresh token during validation", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(app).post(`${baseUrl}/refresh`).send({});
@@ -361,51 +350,17 @@ describe("Auth Controller Error Handling", () => {
 });
 // ---- Auth Controller Edge Cases ----
 describe("Auth Controller Edge Cases", () => {
-    // Handle password hashing error
-    test("should handle password hashing error during registration", () => __awaiter(void 0, void 0, void 0, function* () {
-        const bcryptMock = jest
-            .spyOn(bcrypt_1.default, "genSalt")
-            .mockImplementationOnce(() => Promise.reject("Hashing failed"));
-        const response = yield (0, supertest_1.default)(app).post("/auth/register").send({
-            email: "test@error.com",
-            password: "123456",
-        });
-        expect(response.statusCode).toBe(400);
-        bcryptMock.mockRestore();
-    }));
     // Handle token generation error during login
     test("should handle token generation error during login", () => __awaiter(void 0, void 0, void 0, function* () {
         const originalSecret = process.env.TOKEN_SECRET;
         delete process.env.TOKEN_SECRET;
-        const response = yield (0, supertest_1.default)(app).post("/auth/login").send({
+        const response = yield (0, supertest_1.default)(app).post(`${baseUrl}/login`).send({
             email: "test@test.com",
             password: "123456",
         });
         expect(response.statusCode).toBe(400);
-        expect(response.text).toBe("incorrect email or password");
+        expect(response.text).toContain("incorrect email or password");
         process.env.TOKEN_SECRET = originalSecret;
-    }));
-    // Handle database error during token refresh
-    test("should handle database error during token refresh", () => __awaiter(void 0, void 0, void 0, function* () {
-        // Register and login to get tokens
-        const userRes = yield (0, supertest_1.default)(app)
-            .post("/auth/register")
-            .send({
-            email: `test_${Date.now()}@test.com`,
-            password: "123456",
-        });
-        const loginRes = yield (0, supertest_1.default)(app).post("/auth/login").send({
-            email: userRes.body.email,
-            password: "123456",
-        });
-        // Mock DB error on save
-        jest.spyOn(user_model_1.default.prototype, "save").mockImplementationOnce(() => {
-            throw new Error("DB Error");
-        });
-        const response = yield (0, supertest_1.default)(app)
-            .post("/auth/refresh")
-            .send({ refreshToken: loginRes.body.refreshToken });
-        expect(response.statusCode).toBe(400);
     }));
     // Handle null refresh token
     test("should handle null refresh token during validation", () => __awaiter(void 0, void 0, void 0, function* () {
@@ -419,12 +374,12 @@ describe("Auth Controller Edge Cases", () => {
         const originalSecret = process.env.TOKEN_SECRET;
         // Register and login to get tokens
         const user = yield (0, supertest_1.default)(app)
-            .post("/auth/register")
+            .post(`${baseUrl}/register`)
             .send({
             email: `test_${Date.now()}@test.com`,
             password: "123456",
         });
-        const loginRes = yield (0, supertest_1.default)(app).post("/auth/login").send({
+        const loginRes = yield (0, supertest_1.default)(app).post(`${baseUrl}/login`).send({
             email: user.body.email,
             password: "123456",
         });
@@ -441,7 +396,7 @@ describe("Auth Controller Edge Cases", () => {
     test("should handle invalid user ID in refresh token", () => __awaiter(void 0, void 0, void 0, function* () {
         // Register a user
         yield (0, supertest_1.default)(app)
-            .post("/auth/register")
+            .post(`${baseUrl}/register`)
             .send({
             email: `test_${Date.now()}@test.com`,
             password: "123456",

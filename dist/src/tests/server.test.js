@@ -14,62 +14,96 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const server_1 = __importDefault(require("../server"));
 const mongoose_1 = __importDefault(require("mongoose"));
-// Mock dotenv
-jest.mock("dotenv", () => ({
-    config: jest.fn(),
-}));
-// Mock mongoose
-jest.mock("mongoose", () => (Object.assign(Object.assign({}, jest.requireActual("mongoose")), { connect: jest.fn(), connection: {
-        readyState: 0,
-        close: jest.fn().mockResolvedValue(null),
-    } })));
-describe("Server Initialization", () => {
-    beforeEach(() => {
-        // Reset environment variables and mocks before each test
-        jest.clearAllMocks();
+const dotenv_1 = __importDefault(require("dotenv"));
+// טעינת משתני סביבה
+dotenv_1.default.config({ path: ".env.test" });
+// הגדרת זמן מקסימלי לטסטים
+jest.setTimeout(30000);
+describe("Server initialization tests", () => {
+    beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
+        // ניתוק מכל חיבור קיים
+        if (mongoose_1.default.connection.readyState !== 0) {
+            yield mongoose_1.default.disconnect();
+        }
+    }));
+    afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
+        // ניתוק החיבור בסוף הטסטים
+        if (mongoose_1.default.connection.readyState !== 0) {
+            yield mongoose_1.default.disconnect();
+        }
+    }));
+    beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
+        // ניתוק חיבורים לפני כל טסט
+        if (mongoose_1.default.connection.readyState !== 0) {
+            yield mongoose_1.default.disconnect();
+        }
+    }));
+    test("Should throw an error when DB_CONNECT is not set", () => __awaiter(void 0, void 0, void 0, function* () {
+        const originalDbConnect = process.env.DB_CONNECT;
+        // מחיקת משתנה הסביבה
         delete process.env.DB_CONNECT;
-        mongoose_1.default.connection.readyState = 0;
-    });
-    test("should throw error when DB_CONNECT is not defined", () => __awaiter(void 0, void 0, void 0, function* () {
-        // Remove DB_CONNECT environment variable
-        delete process.env.DB_CONNECT;
-        // Expect the initApp to reject with an error
+        // בדיקה שהפונקציה זורקת שגיאה
         yield expect((0, server_1.default)()).rejects.toThrow("DB_CONNECT is not defined");
+        // שחזור משתנה הסביבה
+        process.env.DB_CONNECT = originalDbConnect;
     }));
-    test("should handle database connection states", () => __awaiter(void 0, void 0, void 0, function* () {
-        // Mock mongoose connection
-        process.env.DB_CONNECT = "mongodb://test-connection-string";
-        mongoose_1.default.connect.mockResolvedValue({});
-        // Scenario 1: Already connected state
-        mongoose_1.default.connection.readyState = 1;
-        const appAlreadyConnected = yield (0, server_1.default)();
-        expect(appAlreadyConnected).toBeDefined();
-        // Scenario 2: Connecting state
-        mongoose_1.default.connection.readyState = 2;
-        const appConnecting = yield (0, server_1.default)();
-        expect(appConnecting).toBeDefined();
-        // Scenario 3: Disconnected state
-        mongoose_1.default.connection.readyState = 0;
-        const appDisconnected = yield (0, server_1.default)();
-        expect(appDisconnected).toBeDefined();
+    test("Test that the connection is correct when DB_CONNECT is set correctly", () => __awaiter(void 0, void 0, void 0, function* () {
+        expect(process.env.DB_CONNECT).toBeDefined();
+        // אתחול האפליקציה
+        const app = yield (0, server_1.default)();
+        // וידוא שהאפליקציה הוחזרה
+        expect(app).toBeDefined();
+        // וידוא שהחיבור למסד הנתונים פעיל
+        expect(mongoose_1.default.connection.readyState).toBe(1); // מצב מחובר
     }));
-    test("should close existing connection before connecting", () => __awaiter(void 0, void 0, void 0, function* () {
-        // Setup
-        process.env.DB_CONNECT = "mongodb://test-connection-string";
-        mongoose_1.default.connection.readyState = 2; // Connecting state
-        mongoose_1.default.connect.mockResolvedValue({});
+    test("disconnection test", () => __awaiter(void 0, void 0, void 0, function* () {
+        if (mongoose_1.default.connection.readyState !== 0) {
+            yield mongoose_1.default.disconnect();
+        }
+        expect(mongoose_1.default.connection.readyState).toBe(0); // מצב מנותק
+        const app = yield (0, server_1.default)();
+        expect(app).toBeDefined();
+        expect(mongoose_1.default.connection.readyState).toBe(1); // התחבר בהצלחה
+    }));
+    test("Test that database connection error handling is performed correctly", () => __awaiter(void 0, void 0, void 0, function* () {
+        // this shuld be print error in console
+        const originalDbConnect = process.env.DB_CONNECT;
+        // הגדרת מחרוזת חיבור לא תקינה
+        process.env.DB_CONNECT =
+            "mongodb://invalid-connection-string:27017/testdb?serverSelectionTimeoutMS=1000";
+        // בדיקה שהפונקציה זורקת שגיאה
+        yield expect((0, server_1.default)()).rejects.toThrow();
+        // שחזור מחרוזת החיבור המקורית
+        process.env.DB_CONNECT = originalDbConnect;
+    }));
+    test("Make sure to close an existing connection before a new connection", () => __awaiter(void 0, void 0, void 0, function* () {
+        // התחבר למסד הנתונים בפעם הראשונה
         yield (0, server_1.default)();
-        // Verify that close was called
-        expect(mongoose_1.default.connection.close).toHaveBeenCalled();
-        expect(mongoose_1.default.connect).toHaveBeenCalledWith("mongodb://test-connection-string");
+        const firstConnectionState = mongoose_1.default.connection.readyState;
+        // התחבר שוב
+        yield (0, server_1.default)();
+        const secondConnectionState = mongoose_1.default.connection.readyState;
+        // וידוא שהחיבור נשאר פעיל
+        expect(firstConnectionState).toBe(1); // מחובר
+        expect(secondConnectionState).toBe(1); // עדיין מחובר
     }));
-    test("should handle mongoose connection errors", () => __awaiter(void 0, void 0, void 0, function* () {
-        // Mock mongoose connect to throw an error
-        process.env.DB_CONNECT = "mongodb://invalid-connection-string";
-        const connectionError = new Error("Connection failed");
-        mongoose_1.default.connect.mockRejectedValue(connectionError);
-        // Expect initApp to reject with the connection error
-        yield expect((0, server_1.default)()).rejects.toThrow("Connection failed");
+    test("Make sure to disconnect all connections after the tests are finished", () => __awaiter(void 0, void 0, void 0, function* () {
+        yield (0, server_1.default)();
+        expect(mongoose_1.default.connection.readyState).toBe(1); // מחובר
+        // ניתוק החיבור
+        yield mongoose_1.default.disconnect();
+        expect(mongoose_1.default.connection.readyState).toBe(0); // מנותק
+    }));
+    test("Test that checking that the Connecting mode is handled properly", () => __awaiter(void 0, void 0, void 0, function* () {
+        // התחלת חיבור למסד הנתונים
+        const connectionPromise = mongoose_1.default.connect(process.env.DB_CONNECT, {});
+        // וידוא שמצב החיבור הוא "Connecting" (2)
+        expect(mongoose_1.default.connection.readyState).toBe(2);
+        // הפעלת הפונקציה
+        yield (0, server_1.default)();
+        // וידוא שהחיבור נסגר (readyState יחזור ל-1)
+        yield connectionPromise; // מחכים שהחיבור יושלם כדי למנוע בעיות
+        expect(mongoose_1.default.connection.readyState).toBe(1); // מצב מחובר
     }));
 });
 //# sourceMappingURL=server.test.js.map

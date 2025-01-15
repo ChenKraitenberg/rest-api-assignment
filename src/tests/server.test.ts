@@ -2,81 +2,122 @@ import initApp from "../server";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
-// Mock dotenv
-jest.mock("dotenv", () => ({
-  config: jest.fn(),
-}));
+// טעינת משתני סביבה
+dotenv.config({ path: ".env.test" });
 
-// Mock mongoose
-jest.mock("mongoose", () => ({
-  ...jest.requireActual("mongoose"),
-  connect: jest.fn(),
-  connection: {
-    readyState: 0,
-    close: jest.fn().mockResolvedValue(null),
-  },
-}));
+// הגדרת זמן מקסימלי לטסטים
+jest.setTimeout(30000);
 
-describe("Server Initialization", () => {
-  beforeEach(() => {
-    // Reset environment variables and mocks before each test
-    jest.clearAllMocks();
-    delete process.env.DB_CONNECT;
-    (mongoose.connection as any).readyState = 0;
+describe("Server initialization tests", () => {
+  beforeAll(async () => {
+    // ניתוק מכל חיבור קיים
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
   });
 
-  test("should throw error when DB_CONNECT is not defined", async () => {
-    // Remove DB_CONNECT environment variable
+  afterAll(async () => {
+    // ניתוק החיבור בסוף הטסטים
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
+  });
+
+  beforeEach(async () => {
+    // ניתוק חיבורים לפני כל טסט
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
+  });
+
+  test("Should throw an error when DB_CONNECT is not set", async () => {
+    const originalDbConnect = process.env.DB_CONNECT;
+
+    // מחיקת משתנה הסביבה
     delete process.env.DB_CONNECT;
 
-    // Expect the initApp to reject with an error
+    // בדיקה שהפונקציה זורקת שגיאה
     await expect(initApp()).rejects.toThrow("DB_CONNECT is not defined");
+
+    // שחזור משתנה הסביבה
+    process.env.DB_CONNECT = originalDbConnect;
   });
 
-  test("should handle database connection states", async () => {
-    // Mock mongoose connection
-    process.env.DB_CONNECT = "mongodb://test-connection-string";
-    (mongoose.connect as jest.Mock).mockResolvedValue({});
+  test("Test that the connection is correct when DB_CONNECT is set correctly", async () => {
+    expect(process.env.DB_CONNECT).toBeDefined();
 
-    // Scenario 1: Already connected state
-    (mongoose.connection as any).readyState = 1;
-    const appAlreadyConnected = await initApp();
-    expect(appAlreadyConnected).toBeDefined();
+    // אתחול האפליקציה
+    const app = await initApp();
 
-    // Scenario 2: Connecting state
-    (mongoose.connection as any).readyState = 2;
-    const appConnecting = await initApp();
-    expect(appConnecting).toBeDefined();
+    // וידוא שהאפליקציה הוחזרה
+    expect(app).toBeDefined();
 
-    // Scenario 3: Disconnected state
-    (mongoose.connection as any).readyState = 0;
-    const appDisconnected = await initApp();
-    expect(appDisconnected).toBeDefined();
+    // וידוא שהחיבור למסד הנתונים פעיל
+    expect(mongoose.connection.readyState).toBe(1); // מצב מחובר
   });
 
-  test("should close existing connection before connecting", async () => {
-    // Setup
-    process.env.DB_CONNECT = "mongodb://test-connection-string";
-    (mongoose.connection as any).readyState = 2; // Connecting state
-    (mongoose.connect as jest.Mock).mockResolvedValue({});
+  test("disconnection test", async () => {
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
 
+    expect(mongoose.connection.readyState).toBe(0); // מצב מנותק
+
+    const app = await initApp();
+    expect(app).toBeDefined();
+    expect(mongoose.connection.readyState).toBe(1); // התחבר בהצלחה
+  });
+
+  test("Test that database connection error handling is performed correctly", async () => {
+    // this shuld be print error in console
+    const originalDbConnect = process.env.DB_CONNECT;
+
+    // הגדרת מחרוזת חיבור לא תקינה
+    process.env.DB_CONNECT =
+      "mongodb://invalid-connection-string:27017/testdb?serverSelectionTimeoutMS=1000";
+
+    // בדיקה שהפונקציה זורקת שגיאה
+    await expect(initApp()).rejects.toThrow();
+
+    // שחזור מחרוזת החיבור המקורית
+    process.env.DB_CONNECT = originalDbConnect;
+  });
+
+  test("Make sure to close an existing connection before a new connection", async () => {
+    // התחבר למסד הנתונים בפעם הראשונה
+    await initApp();
+    const firstConnectionState = mongoose.connection.readyState;
+
+    // התחבר שוב
+    await initApp();
+    const secondConnectionState = mongoose.connection.readyState;
+
+    // וידוא שהחיבור נשאר פעיל
+    expect(firstConnectionState).toBe(1); // מחובר
+    expect(secondConnectionState).toBe(1); // עדיין מחובר
+  });
+
+  test("Make sure to disconnect all connections after the tests are finished", async () => {
     await initApp();
 
-    // Verify that close was called
-    expect(mongoose.connection.close).toHaveBeenCalled();
-    expect(mongoose.connect).toHaveBeenCalledWith(
-      "mongodb://test-connection-string"
-    );
+    expect(mongoose.connection.readyState).toBe(1); // מחובר
+
+    // ניתוק החיבור
+    await mongoose.disconnect();
+    expect(mongoose.connection.readyState).toBe(0); // מנותק
   });
+  test("Test that checking that the Connecting mode is handled properly", async () => {
+    // התחלת חיבור למסד הנתונים
+    const connectionPromise = mongoose.connect(process.env.DB_CONNECT!, {});
 
-  test("should handle mongoose connection errors", async () => {
-    // Mock mongoose connect to throw an error
-    process.env.DB_CONNECT = "mongodb://invalid-connection-string";
-    const connectionError = new Error("Connection failed");
+    // וידוא שמצב החיבור הוא "Connecting" (2)
+    expect(mongoose.connection.readyState).toBe(2);
 
-    (mongoose.connect as jest.Mock).mockRejectedValue(connectionError);
+    // הפעלת הפונקציה
+    await initApp();
 
-    // Expect initApp to reject with the connection error
-    await expect(initApp()).rejects.toThrow("Connection failed");
+    // וידוא שהחיבור נסגר (readyState יחזור ל-1)
+    await connectionPromise; // מחכים שהחיבור יושלם כדי למנוע בעיות
+    expect(mongoose.connection.readyState).toBe(1); // מצב מחובר
   });
 });

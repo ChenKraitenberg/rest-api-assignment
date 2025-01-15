@@ -26,9 +26,9 @@ const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
-app.get("/", (req, res) => {
-    res.send("Welcome");
-});
+//app.get("/", (req, res) => {
+//res.send("Welcome");
+//});
 app.use("/posts", postsRoutes_1.default);
 app.use("/comments", commentsRoutes_1.default);
 app.use("/auth", authRoutes_1.default);
@@ -47,6 +47,7 @@ const options = {
 };
 const specs = (0, swagger_jsdoc_1.default)(options);
 app.use("/api-docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(specs));
+// initApp
 const initApp = () => {
     return new Promise((resolve, reject) => __awaiter(void 0, void 0, void 0, function* () {
         try {

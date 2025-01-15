@@ -4,11 +4,12 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "tsc && jest --detectOpenHandles --coverage --forceExit",
+    "test": "tsc && jest --runInBand --detectOpenHandles --coverage --forceExit",
     "testAuth": "tsc && jest --detectOpenHandles --forceExit auth.test.ts",
     "testPosts": "tsc && jest --detectOpenHandles --forceExit posts.test.ts",
     "testUsers": "tsc && jest --detectOpenHandles --forceExit users.test.ts",
     "testComments": "tsc && jest --detectOpenHandles --forceExit comments.test.ts",
+    "testServer": "tsc && jest --runInBand --detectOpenHandles --forceExit server.test.ts",
     "start": "tsc && node ./dist/src/app.js",
     "lint": "eslint . --ext .ts",
     "devstart": "nodemon ./src/app.ts"

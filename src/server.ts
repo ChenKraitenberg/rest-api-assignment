@@ -14,9 +14,9 @@ import e from "express";
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.get("/", (req, res) => {
-  res.send("Welcome");
-});
+//app.get("/", (req, res) => {
+//res.send("Welcome");
+//});
 
 app.use("/posts", postsRoutes);
 app.use("/comments", commentsRoutes);
@@ -38,6 +38,7 @@ const options = {
 const specs = swaggerJsDoc(options);
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
 
+// initApp
 const initApp = (): Promise<Express> => {
   return new Promise<Express>(async (resolve, reject) => {
     try {

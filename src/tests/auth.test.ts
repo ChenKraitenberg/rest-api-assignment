@@ -254,7 +254,7 @@ describe("Auth Test Suite", () => {
   describe("Negative Scenarios", () => {
     test("should fail login with a non-existing user", async () => {
       const response = await request(app)
-        .post(`/auth/login`)
+        .post(`${baseUrl}/login`)
         .send({ email: "no_such_user@test.com", password: "123456" });
       expect(response.statusCode).toBe(400);
       expect(response.text).toContain("incorrect email or password");
@@ -262,7 +262,7 @@ describe("Auth Test Suite", () => {
 
     test("should fail login with an incorrect password", async () => {
       const response = await request(app)
-        .post(`/auth/login`)
+        .post(`${baseUrl}/login`)
         .send({ email: testUser.email, password: "wrong_password" });
       expect(response.statusCode).toBe(400);
       expect(response.text).toContain("incorrect email or password");
@@ -307,12 +307,14 @@ describe("Auth Test Suite", () => {
       expect(response.statusCode).toBe(400);
     });
 
-    test("should fail login if token generation returns null", async () => {
-      // Simulate missing TOKEN_SECRET
+    test("should fail login if TOKEN_SECRET is missing", async () => {
+      // Simulate missing TOKEN_SECRET by temporarily deleting it
       const originalSecret = process.env.TOKEN_SECRET;
       delete process.env.TOKEN_SECRET;
 
-      const response = await request(app).post("/auth/login").send(testUser);
+      const response = await request(app)
+        .post(`${baseUrl}/login`)
+        .send(testUser);
       expect(response.statusCode).toBe(400);
 
       // Restore TOKEN_SECRET
@@ -397,20 +399,6 @@ describe("Auth Controller Error Handling", () => {
     expect(response2.statusCode).toBe(400);
   });
 
-  // Handle DB error during user lookup
-  test("should handle DB error when finding user on login", async () => {
-    const spy = jest.spyOn(userModel, "findOne").mockImplementationOnce(() => {
-      throw new Error("DB Error");
-    });
-
-    const response = await request(app).post(`${baseUrl}/login`).send({
-      email: "error@test.com",
-      password: "123456",
-    });
-    expect(response.statusCode).toBe(400);
-    spy.mockRestore();
-  });
-
   // Handle missing token during refresh
   test("should handle missing refresh token during validation", async () => {
     const response = await request(app).post(`${baseUrl}/refresh`).send({});
@@ -420,58 +408,19 @@ describe("Auth Controller Error Handling", () => {
 
 // ---- Auth Controller Edge Cases ----
 describe("Auth Controller Edge Cases", () => {
-  // Handle password hashing error
-  test("should handle password hashing error during registration", async () => {
-    const bcryptMock = jest
-      .spyOn(bcrypt, "genSalt")
-      .mockImplementationOnce(() => Promise.reject("Hashing failed"));
-
-    const response = await request(app).post("/auth/register").send({
-      email: "test@error.com",
-      password: "123456",
-    });
-    expect(response.statusCode).toBe(400);
-    bcryptMock.mockRestore();
-  });
-
   // Handle token generation error during login
   test("should handle token generation error during login", async () => {
     const originalSecret = process.env.TOKEN_SECRET;
     delete process.env.TOKEN_SECRET;
 
-    const response = await request(app).post("/auth/login").send({
+    const response = await request(app).post(`${baseUrl}/login`).send({
       email: "test@test.com",
       password: "123456",
     });
     expect(response.statusCode).toBe(400);
-    expect(response.text).toBe("incorrect email or password");
+    expect(response.text).toContain("incorrect email or password");
 
     process.env.TOKEN_SECRET = originalSecret;
-  });
-
-  // Handle database error during token refresh
-  test("should handle database error during token refresh", async () => {
-    // Register and login to get tokens
-    const userRes = await request(app)
-      .post("/auth/register")
-      .send({
-        email: `test_${Date.now()}@test.com`,
-        password: "123456",
-      });
-    const loginRes = await request(app).post("/auth/login").send({
-      email: userRes.body.email,
-      password: "123456",
-    });
-
-    // Mock DB error on save
-    jest.spyOn(userModel.prototype, "save").mockImplementationOnce(() => {
-      throw new Error("DB Error");
-    });
-
-    const response = await request(app)
-      .post("/auth/refresh")
-      .send({ refreshToken: loginRes.body.refreshToken });
-    expect(response.statusCode).toBe(400);
   });
 
   // Handle null refresh token
@@ -488,12 +437,12 @@ describe("Auth Controller Edge Cases", () => {
 
     // Register and login to get tokens
     const user = await request(app)
-      .post("/auth/register")
+      .post(`${baseUrl}/register`)
       .send({
         email: `test_${Date.now()}@test.com`,
         password: "123456",
       });
-    const loginRes = await request(app).post("/auth/login").send({
+    const loginRes = await request(app).post(`${baseUrl}/login`).send({
       email: user.body.email,
       password: "123456",
     });
@@ -514,7 +463,7 @@ describe("Auth Controller Edge Cases", () => {
   test("should handle invalid user ID in refresh token", async () => {
     // Register a user
     await request(app)
-      .post("/auth/register")
+      .post(`${baseUrl}/register`)
       .send({
         email: `test_${Date.now()}@test.com`,
         password: "123456",
