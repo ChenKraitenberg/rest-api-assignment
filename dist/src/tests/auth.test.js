@@ -18,6 +18,8 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const posts_models_1 = __importDefault(require("../models/posts_models"));
 const user_model_1 = __importDefault(require("../models/user_model"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 dotenv_1.default.config();
 // ---------- Global Variables ----------
 const baseUrl = "/auth";
@@ -25,7 +27,7 @@ const testUser = {
     email: "user1@test.com",
     password: "123456",
 };
-//  ------- Global test Initialization (beforeAll / afterAll) ------
+//  ------- Global Test Initialization (beforeAll / afterAll) ------
 let app;
 beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
     app = yield (0, server_1.default)();
@@ -36,324 +38,270 @@ afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
     yield mongoose_1.default.connection.close();
 }));
 // ---- Main Auth Test Suite ----
-describe("Auth test suite", () => {
+describe("Auth Test Suite", () => {
     // Registration Tests
-    test("Auth test registration", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .post(`${baseUrl}/register`)
-            .send(testUser);
-        expect(response.statusCode).toBe(200);
-    }));
-    test("Auth test registration no password", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .post(`${baseUrl}/register`)
-            .send({ email: "sdfsadaf" });
-        expect(response.statusCode).not.toBe(200);
-    }));
-    test("Auth test registration email already exist", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .post(`${baseUrl}/register`)
-            .send(testUser);
-        expect(response.statusCode).not.toBe(200);
-    }));
+    describe("Registration", () => {
+        test("should register a new user successfully", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(app)
+                .post(`${baseUrl}/register`)
+                .send(testUser);
+            expect(response.statusCode).toBe(200);
+        }));
+        test("should fail registration without a password", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(app)
+                .post(`${baseUrl}/register`)
+                .send({ email: "sdfsadaf" });
+            expect(response.statusCode).not.toBe(200);
+        }));
+        test("should not allow registration with an existing email", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(app)
+                .post(`${baseUrl}/register`)
+                .send(testUser);
+            expect(response.statusCode).not.toBe(200);
+        }));
+    });
     // Login Tests
-    test("Auth test login", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app).post(`${baseUrl}/login`).send(testUser);
-        expect(response.statusCode).toBe(200);
-        expect(response.body).toHaveProperty("accessToken");
-        expect(response.body).toHaveProperty("refreshToken");
-        const { accessToken, refreshToken, _id } = response.body;
-        testUser.accessToken = accessToken;
-        testUser.refreshToken = refreshToken;
-        testUser._id = _id;
-    }));
-    test("Auth test login make sure tokens are different", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app).post(`${baseUrl}/login`).send(testUser);
-        expect(response.statusCode).toBe(200);
-        expect(response.body).toHaveProperty("accessToken");
-        expect(response.body).toHaveProperty("refreshToken");
-        const { accessToken, refreshToken, _id } = response.body;
-        expect(accessToken).not.toBe(testUser.accessToken);
-        expect(refreshToken).not.toBe(testUser.refreshToken);
-        testUser.accessToken = accessToken;
-        testUser.refreshToken = refreshToken;
-        testUser._id = _id;
-    }));
-    // Token / AuthMiddleware Tests
-    test("Test token access (authorized vs unauthorized)", () => __awaiter(void 0, void 0, void 0, function* () {
-        // 1) Without token => should fail
-        const response = yield (0, supertest_1.default)(app).post("/posts").send({
-            title: "Test title",
-            content: "Test content",
-            owner: "Eliav",
-        });
-        expect(response.statusCode).not.toBe(201);
-        // 2) With valid token => should succeed
-        const response2 = yield (0, supertest_1.default)(app)
-            .post("/posts")
-            .set({ authorization: "JWT " + testUser.accessToken })
-            .send({
-            title: "Test title",
-            content: "Test content",
-            owner: "Eliav",
-        });
-        expect(response2.statusCode).toBe(201);
-    }));
-    test("Test token access fail (wrong token)", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .post("/posts")
-            .set({ authorization: "JWT " + testUser.accessToken + "f" })
-            .send({
-            title: "Test title",
-            content: "Test content",
-            owner: "Eliav",
-        });
-        expect(response.statusCode).not.toBe(201);
-    }));
+    describe("Login", () => {
+        test("should login successfully and return tokens", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(app)
+                .post(`${baseUrl}/login`)
+                .send(testUser);
+            expect(response.statusCode).toBe(200);
+            expect(response.body).toHaveProperty("accessToken");
+            expect(response.body).toHaveProperty("refreshToken");
+            const { accessToken, refreshToken, _id } = response.body;
+            testUser.accessToken = accessToken;
+            testUser.refreshToken = refreshToken;
+            testUser._id = _id;
+        }));
+        test("should generate different tokens on subsequent logins", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(app)
+                .post(`${baseUrl}/login`)
+                .send(testUser);
+            expect(response.statusCode).toBe(200);
+            expect(response.body).toHaveProperty("accessToken");
+            expect(response.body).toHaveProperty("refreshToken");
+            const { accessToken, refreshToken, _id } = response.body;
+            expect(accessToken).not.toBe(testUser.accessToken);
+            expect(refreshToken).not.toBe(testUser.refreshToken);
+            testUser.accessToken = accessToken;
+            testUser.refreshToken = refreshToken;
+            testUser._id = _id;
+        }));
+    });
+    // Token Access Tests
+    describe("Token Access", () => {
+        test("should deny access without a token", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(app).post("/posts").send({
+                title: "Test title",
+                content: "Test content",
+                owner: "Eliav",
+            });
+            expect(response.statusCode).not.toBe(201);
+        }));
+        test("should allow access with a valid token", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(app)
+                .post("/posts")
+                .set({ authorization: `JWT ${testUser.accessToken}` })
+                .send({
+                title: "Test title",
+                content: "Test content",
+                owner: "Eliav",
+            });
+            expect(response.statusCode).toBe(201);
+        }));
+        test("should deny access with an invalid token", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(app)
+                .post("/posts")
+                .set({ authorization: `JWT ${testUser.accessToken}f` })
+                .send({
+                title: "Test title",
+                content: "Test content",
+                owner: "Eliav",
+            });
+            expect(response.statusCode).not.toBe(201);
+        }));
+    });
     // Refresh Token Tests
-    test("Test refresh token (valid refresh)", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .post(`${baseUrl}/refresh`)
-            .send({ refreshToken: testUser.refreshToken });
-        expect(response.statusCode).toBe(200);
-        expect(response.body).toHaveProperty("accessToken");
-        expect(response.body).toHaveProperty("refreshToken");
-        testUser.accessToken = response.body.accessToken;
-        testUser.refreshToken = response.body.refreshToken;
-    }));
-    test("Test refresh token fail (old vs new)", () => __awaiter(void 0, void 0, void 0, function* () {
-        // 1) We refresh once
-        const response = yield (0, supertest_1.default)(app)
-            .post(`${baseUrl}/refresh`)
-            .send({ refreshToken: testUser.refreshToken });
-        expect(response.statusCode).toBe(200);
-        const newRefreshToken = response.body.refreshToken;
-        // 2) Try again with old refreshToken => fails
-        const response2 = yield (0, supertest_1.default)(app)
-            .post(`${baseUrl}/refresh`)
-            .send({ refreshToken: testUser.refreshToken });
-        expect(response2.statusCode).not.toBe(200);
-        // 3) Try with the new refreshToken again => also fail, because it's now replaced
-        const response3 = yield (0, supertest_1.default)(app)
-            .post(`${baseUrl}/refresh`)
-            .send({ refreshToken: newRefreshToken });
-        expect(response3.statusCode).not.toBe(200);
-    }));
-    test("Refresh with broken signature => reject(err)", () => __awaiter(void 0, void 0, void 0, function* () {
-        // שולחים מחרוזת שנראית כמו JWT אבל החתימה לא נכונה
-        const brokenRefreshToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.badSignature";
-        const res = yield (0, supertest_1.default)(app)
-            .post("/auth/refresh")
-            .send({ refreshToken: brokenRefreshToken });
-        expect(res.statusCode).toBe(400);
-    }));
+    describe("Refresh Token", () => {
+        test("should refresh tokens with a valid refresh token", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(app)
+                .post(`${baseUrl}/refresh`)
+                .send({ refreshToken: testUser.refreshToken });
+            expect(response.statusCode).toBe(200);
+            expect(response.body).toHaveProperty("accessToken");
+            expect(response.body).toHaveProperty("refreshToken");
+            testUser.accessToken = response.body.accessToken;
+            testUser.refreshToken = response.body.refreshToken;
+        }));
+        test("should invalidate old refresh tokens after refreshing", () => __awaiter(void 0, void 0, void 0, function* () {
+            // First refresh
+            const response1 = yield (0, supertest_1.default)(app)
+                .post(`${baseUrl}/refresh`)
+                .send({ refreshToken: testUser.refreshToken });
+            expect(response1.statusCode).toBe(200);
+            const newRefreshToken = response1.body.refreshToken;
+            // Attempt to refresh with the old token
+            const response2 = yield (0, supertest_1.default)(app)
+                .post(`${baseUrl}/refresh`)
+                .send({ refreshToken: testUser.refreshToken });
+            expect(response2.statusCode).not.toBe(200);
+            // Attempt to refresh with the new token
+            const response3 = yield (0, supertest_1.default)(app)
+                .post(`${baseUrl}/refresh`)
+                .send({ refreshToken: newRefreshToken });
+            expect(response3.statusCode).not.toBe(200);
+        }));
+        test("should handle refresh with a broken signature", () => __awaiter(void 0, void 0, void 0, function* () {
+            const brokenRefreshToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.badSignature";
+            const res = yield (0, supertest_1.default)(app)
+                .post("/auth/refresh")
+                .send({ refreshToken: brokenRefreshToken });
+            expect(res.statusCode).toBe(400);
+        }));
+    });
     // Logout Tests
-    test("Test Logout", () => __awaiter(void 0, void 0, void 0, function* () {
-        // 1) login again to get fresh tokens
-        const response = yield (0, supertest_1.default)(app).post(`${baseUrl}/login`).send(testUser);
-        expect(response.statusCode).toBe(200);
-        const { accessToken, refreshToken } = response.body;
-        testUser.accessToken = accessToken;
-        testUser.refreshToken = refreshToken;
-        // 2) logout => 200
-        const response2 = yield (0, supertest_1.default)(app)
-            .post(`${baseUrl}/logout`)
-            .send({ refreshToken: testUser.refreshToken });
-        expect(response2.statusCode).toBe(200);
-        // 3) try refresh => should fail
-        const response3 = yield (0, supertest_1.default)(app)
-            .post(`${baseUrl}/refresh`)
-            .send({ refreshToken: testUser.refreshToken });
-        expect(response3.statusCode).not.toBe(200);
-    }));
+    describe("Logout", () => {
+        test("should logout successfully and invalidate the refresh token", () => __awaiter(void 0, void 0, void 0, function* () {
+            // Login to get fresh tokens
+            const loginResponse = yield (0, supertest_1.default)(app)
+                .post(`${baseUrl}/login`)
+                .send(testUser);
+            expect(loginResponse.statusCode).toBe(200);
+            const { accessToken, refreshToken } = loginResponse.body;
+            testUser.accessToken = accessToken;
+            testUser.refreshToken = refreshToken;
+            // Logout
+            const logoutResponse = yield (0, supertest_1.default)(app)
+                .post(`${baseUrl}/logout`)
+                .send({ refreshToken: testUser.refreshToken });
+            expect(logoutResponse.statusCode).toBe(200);
+            // Attempt to refresh with the invalidated token
+            const refreshResponse = yield (0, supertest_1.default)(app)
+                .post(`${baseUrl}/refresh`)
+                .send({ refreshToken: testUser.refreshToken });
+            expect(refreshResponse.statusCode).not.toBe(200);
+        }));
+    });
     // Token Expiration Test
-    jest.setTimeout(20000);
-    test("Token expiration", () => __awaiter(void 0, void 0, void 0, function* () {
-        // 1) login
-        const response = yield (0, supertest_1.default)(app).post(`${baseUrl}/login`).send(testUser);
-        expect(response.statusCode).toBe(200);
-        testUser.accessToken = response.body.accessToken;
-        testUser.refreshToken = response.body.refreshToken;
-        // 2) wait ~12s (assuming TOKEN_EXPIRATION=10s for test)
-        yield new Promise((resolve) => setTimeout(resolve, 12000));
-        // 3) try using old token => not 201
-        const response2 = yield (0, supertest_1.default)(app)
-            .post("/posts")
-            .set({ authorization: "JWT " + testUser.accessToken })
-            .send({ title: "Test title", content: "Test content", owner: "Eliav" });
-        expect(response2.statusCode).not.toBe(201);
-        // 4) refresh => should succeed => new tokens
-        const response3 = yield (0, supertest_1.default)(app)
-            .post(`${baseUrl}/refresh`)
-            .send({ refreshToken: testUser.refreshToken });
-        expect(response3.statusCode).toBe(200);
-        testUser.accessToken = response3.body.accessToken;
-        testUser.refreshToken = response3.body.refreshToken;
-        // 5) use new token => 201
-        const response4 = yield (0, supertest_1.default)(app)
-            .post("/posts")
-            .set({ authorization: "JWT " + testUser.accessToken })
-            .send({ title: "Test title", content: "Test content", owner: "Eliav" });
-        expect(response4.statusCode).toBe(201);
-    }));
-    // Negative Login/Refresh/Logout Scenarios
-    test("Login with non-existing user => should return 400", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .post(`/auth/login`)
-            .send({ email: "no_such_user@test.com", password: "123456" });
-        expect(response.statusCode).toBe(400);
-        expect(response.text).toContain("incorrect email or password");
-    }));
-    test("Login with wrong password => should return 400", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .post(`/auth/login`)
-            .send({ email: testUser.email, password: "wrong_password" });
-        expect(response.statusCode).toBe(400);
-        expect(response.text).toContain("incorrect email or password");
-    }));
-    test("Logout without refreshToken => should fail (400)", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app).post("/auth/logout").send({});
-        expect(response.statusCode).toBe(400);
-    }));
-    test("Logout with unregistered refreshToken => should fail (400)", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .post("/auth/logout")
-            .send({ refreshToken: "someValidJWTButNotInDB" });
-        expect(response.statusCode).toBe(400);
-    }));
-    test("Refresh without refreshToken => should fail (400)", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app).post("/auth/refresh").send({});
-        expect(response.statusCode).toBe(400);
-    }));
-    test("Refresh with invalid token => fails (likely 400)", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .post("/auth/refresh")
-            .send({ refreshToken: "DefinitelyNotAValidJWT..." });
-        expect(response.statusCode).not.toBe(200); // probably 400
-    }));
-    test("Refresh with unregistered token => 400", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(app)
-            .post("/auth/refresh")
-            .send({ refreshToken: "someValidJWTFormatButNotInDB" });
-        expect(response.statusCode).toBe(400);
-    }));
-    test("Refresh token with broken JWT => should pass err to reject", () => __awaiter(void 0, void 0, void 0, function* () {
-        // e.g. signature is invalid
-        const brokenToken = "eyJhbGciOiJIUzI1NiIsIn...";
-        const response = yield (0, supertest_1.default)(app)
-            .post("/auth/refresh")
-            .send({ refreshToken: brokenToken });
-        expect(response.statusCode).toBe(400);
-    }));
-    test("generateTokens returns null => login should fail with 400", () => __awaiter(void 0, void 0, void 0, function* () {
-        // Scenario: no SECRET => function returns null
-        const user = { _id: "123", email: "uesr@gmail.con", password: "123456" };
-        const response = yield (0, supertest_1.default)(app).post("/auth/login").send(user);
-        expect(response.statusCode).toBe(400);
-    }));
-    // Additional Negative: Refresh => user not found
-    test("Refresh => user not found => should fail with 400", () => __awaiter(void 0, void 0, void 0, function* () {
-        // 1) יוצרים משתמש חדש
-        const regRes = yield (0, supertest_1.default)(app).post(`${baseUrl}/register`).send({
-            email: "tempuser@test.com",
-            password: "123456",
-        });
-        expect(regRes.statusCode).toBe(200);
-        // 2) מתחברים ולוקחים refreshToken
-        const loginRes = yield (0, supertest_1.default)(app).post(`${baseUrl}/login`).send({
-            email: "tempuser@test.com",
-            password: "123456",
-        });
-        expect(loginRes.statusCode).toBe(200);
-        const tmpRefresh = loginRes.body.refreshToken;
-        const tmpUserId = loginRes.body._id;
-        // 3) מוחקים את המשתמש ממסד הנתונים
-        yield user_model_1.default.deleteOne({ _id: tmpUserId });
-        // 4) מנסים /auth/refresh עם הטוקן של יוזר שכבר לא קיים
-        const refreshRes = yield (0, supertest_1.default)(app)
-            .post(`${baseUrl}/refresh`)
-            .send({ refreshToken: tmpRefresh });
-        // אמור להגיע ל-if (!user) => reject("error") => 400
-        expect(refreshRes.statusCode).toBe(400);
-    }));
+    describe("Token Expiration", () => {
+        jest.setTimeout(20000);
+        test("should handle token expiration correctly", () => __awaiter(void 0, void 0, void 0, function* () {
+            // Login
+            const loginResponse = yield (0, supertest_1.default)(app)
+                .post(`${baseUrl}/login`)
+                .send(testUser);
+            expect(loginResponse.statusCode).toBe(200);
+            testUser.accessToken = loginResponse.body.accessToken;
+            testUser.refreshToken = loginResponse.body.refreshToken;
+            // Wait for token to expire (assuming TOKEN_EXPIRATION=10s for test)
+            yield new Promise((resolve) => setTimeout(resolve, 12000));
+            // Attempt to use the expired token
+            const postResponse = yield (0, supertest_1.default)(app)
+                .post("/posts")
+                .set({ authorization: `JWT ${testUser.accessToken}` })
+                .send({ title: "Test title", content: "Test content", owner: "Eliav" });
+            expect(postResponse.statusCode).not.toBe(201);
+            // Refresh tokens
+            const refreshResponse = yield (0, supertest_1.default)(app)
+                .post(`${baseUrl}/refresh`)
+                .send({ refreshToken: testUser.refreshToken });
+            expect(refreshResponse.statusCode).toBe(200);
+            testUser.accessToken = refreshResponse.body.accessToken;
+            testUser.refreshToken = refreshResponse.body.refreshToken;
+            // Use the new token
+            const newPostResponse = yield (0, supertest_1.default)(app)
+                .post("/posts")
+                .set({ authorization: `JWT ${testUser.accessToken}` })
+                .send({ title: "Test title", content: "Test content", owner: "Eliav" });
+            expect(newPostResponse.statusCode).toBe(201);
+        }));
+    });
+    // Negative Scenarios
+    describe("Negative Scenarios", () => {
+        test("should fail login with a non-existing user", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(app)
+                .post(`/auth/login`)
+                .send({ email: "no_such_user@test.com", password: "123456" });
+            expect(response.statusCode).toBe(400);
+            expect(response.text).toContain("incorrect email or password");
+        }));
+        test("should fail login with an incorrect password", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(app)
+                .post(`/auth/login`)
+                .send({ email: testUser.email, password: "wrong_password" });
+            expect(response.statusCode).toBe(400);
+            expect(response.text).toContain("incorrect email or password");
+        }));
+        test("should fail logout without a refresh token", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(app).post("/auth/logout").send({});
+            expect(response.statusCode).toBe(400);
+        }));
+        test("should fail logout with an unregistered refresh token", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(app)
+                .post("/auth/logout")
+                .send({ refreshToken: "someValidJWTButNotInDB" });
+            expect(response.statusCode).toBe(400);
+        }));
+        test("should fail refresh without a refresh token", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(app).post("/auth/refresh").send({});
+            expect(response.statusCode).toBe(400);
+        }));
+        test("should fail refresh with an invalid token format", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(app)
+                .post("/auth/refresh")
+                .send({ refreshToken: "DefinitelyNotAValidJWT..." });
+            expect(response.statusCode).toBe(400);
+        }));
+        test("should fail refresh with an unregistered token", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(app)
+                .post("/auth/refresh")
+                .send({ refreshToken: "someValidJWTFormatButNotInDB" });
+            expect(response.statusCode).toBe(400);
+        }));
+        test("should fail refresh with a broken JWT", () => __awaiter(void 0, void 0, void 0, function* () {
+            const brokenToken = "eyJhbGciOiJIUzI1NiIsIn...";
+            const response = yield (0, supertest_1.default)(app)
+                .post("/auth/refresh")
+                .send({ refreshToken: brokenToken });
+            expect(response.statusCode).toBe(400);
+        }));
+        test("should fail login if token generation returns null", () => __awaiter(void 0, void 0, void 0, function* () {
+            // Simulate missing TOKEN_SECRET
+            const originalSecret = process.env.TOKEN_SECRET;
+            delete process.env.TOKEN_SECRET;
+            const response = yield (0, supertest_1.default)(app).post("/auth/login").send(testUser);
+            expect(response.statusCode).toBe(400);
+            // Restore TOKEN_SECRET
+            process.env.TOKEN_SECRET = originalSecret;
+        }));
+        test("should fail refresh if the user does not exist", () => __awaiter(void 0, void 0, void 0, function* () {
+            // Register a temporary user
+            const regRes = yield (0, supertest_1.default)(app).post(`${baseUrl}/register`).send({
+                email: "tempuser@test.com",
+                password: "123456",
+            });
+            expect(regRes.statusCode).toBe(200);
+            // Login to get refresh token
+            const loginRes = yield (0, supertest_1.default)(app).post(`${baseUrl}/login`).send({
+                email: "tempuser@test.com",
+                password: "123456",
+            });
+            expect(loginRes.statusCode).toBe(200);
+            const tmpRefresh = loginRes.body.refreshToken;
+            const tmpUserId = loginRes.body._id;
+            // Delete the user from the database
+            yield user_model_1.default.deleteOne({ _id: tmpUserId });
+            // Attempt to refresh with the deleted user's token
+            const refreshRes = yield (0, supertest_1.default)(app)
+                .post(`${baseUrl}/refresh`)
+                .send({ refreshToken: tmpRefresh });
+            expect(refreshRes.statusCode).toBe(400);
+        }));
+    });
 });
-/*
-// ---- No DB_CONNECT scenario ----
-describe("No DB_CONNECT scenario", () => {
-  let originalDBConnect: string | undefined;
-
-  beforeAll(() => {
-    originalDBConnect = process.env.DB_CONNECT;
-    delete process.env.DB_CONNECT; // Delete DB_CONNECT var
-  });
-
-  afterAll(() => {
-    process.env.DB_CONNECT = originalDBConnect; // Restore
-  });
-
-  test("initApp fails if no DB_CONNECT", async () => {
-    await expect(
-      import("../server").then(({ default: initApp }) => initApp())
-    ).rejects.toThrow("DB_CONNECT is not defined");
-  });
-});
-
-// ---- Failing DB connection scenario ----
-describe("Failing DB connection scenario", () => {
-  let originalDB: string | undefined;
-
-  beforeAll(() => {
-    // שמירת הערך המקורי
-    originalDB = process.env.DB_CONNECT;
-    // URI לא תקין
-    process.env.DB_CONNECT = "mongodb://127.0.0.1:9999/no-such-db";
-  });
-
-  afterAll(() => {
-    // משחזרים את הערך המקורי
-    process.env.DB_CONNECT = originalDB;
-  });
-
-  test("initApp should fail and trigger .catch", async () => {
-    await expect(
-      import("../server").then(({ default: initApp }) => initApp())
-    ).rejects.toThrow();
-  });
-
-  test("Login => DB error => catch block triggered", async () => {
-    // מנסים לעשות login למרות שאין חיבור תקין
-    const response = await request(app)
-      .post("/auth/login")
-      .send({ email: "dbfail@test.com", password: "123456" });
-    // כנראה יחזור 400/500, תלוי בקוד שלך
-    expect(response.statusCode).not.toBe(200);
-  });
-});
-
-// ----  No TOKEN_SECRET for generateTokens -----
-describe("No TOKEN_SECRET for generateTokens", () => {
-  let originalSecret: string | undefined;
-
-  beforeAll(() => {
-    originalSecret = process.env.TOKEN_SECRET;
-    delete process.env.TOKEN_SECRET;
-  });
-
-  afterAll(() => {
-    process.env.TOKEN_SECRET = originalSecret;
-  });
-
-  test("login fails because generateTokens returns null", async () => {
-    const response = await request(app)
-      .post("/auth/login")
-      .send({ email: "someMail@test.com", password: "123456" });
-
-    expect(response.statusCode).toBe(400);
-  });
-});
-*/
-// ---- authMiddleware with no TOKEN_SECRET ----
-describe("authMiddleware with no TOKEN_SECRET", () => {
+// ---- Auth Middleware Without TOKEN_SECRET ----
+describe("Auth Middleware Without TOKEN_SECRET", () => {
     let originalSecret;
     beforeAll(() => {
         originalSecret = process.env.TOKEN_SECRET;
@@ -362,7 +310,7 @@ describe("authMiddleware with no TOKEN_SECRET", () => {
     afterAll(() => {
         process.env.TOKEN_SECRET = originalSecret;
     });
-    test("Should return 400 server error if TOKEN_SECRET is missing (access route)", () => __awaiter(void 0, void 0, void 0, function* () {
+    test("should return 400 server error if TOKEN_SECRET is missing on access route", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(app)
             .post("/posts")
             .set({ authorization: "JWT someToken" })
@@ -370,13 +318,154 @@ describe("authMiddleware with no TOKEN_SECRET", () => {
         expect(response.statusCode).toBe(400);
         expect(response.text).toContain("server error");
     }));
-    test("Login => 400 error due to !tokens", () => __awaiter(void 0, void 0, void 0, function* () {
+    test("should fail login when TOKEN_SECRET is missing", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(app)
             .post("/auth/login")
             .send({ email: "user@test.com", password: "123456" });
-        // כי generateTokens(user) תחזיר null
         expect(response.statusCode).toBe(400);
         expect(response.text).toContain("incorrect email or password");
+    }));
+});
+// ---- Auth Controller Error Handling ----
+describe("Auth Controller Error Handling", () => {
+    // Handle MongoDB duplicate key error
+    test("should handle MongoDB duplicate key error on registration", () => __awaiter(void 0, void 0, void 0, function* () {
+        const user = {
+            email: "duplicate@test.com",
+            password: "123456",
+        };
+        // First registration
+        const response1 = yield (0, supertest_1.default)(app).post(`${baseUrl}/register`).send(user);
+        expect(response1.statusCode).toBe(200);
+        // Attempt duplicate registration
+        const response2 = yield (0, supertest_1.default)(app).post(`${baseUrl}/register`).send(user);
+        expect(response2.statusCode).toBe(400);
+    }));
+    // Handle DB error during user lookup
+    test("should handle DB error when finding user on login", () => __awaiter(void 0, void 0, void 0, function* () {
+        const spy = jest.spyOn(user_model_1.default, "findOne").mockImplementationOnce(() => {
+            throw new Error("DB Error");
+        });
+        const response = yield (0, supertest_1.default)(app).post(`${baseUrl}/login`).send({
+            email: "error@test.com",
+            password: "123456",
+        });
+        expect(response.statusCode).toBe(400);
+        spy.mockRestore();
+    }));
+    // Handle missing token during refresh
+    test("should handle missing refresh token during validation", () => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield (0, supertest_1.default)(app).post(`${baseUrl}/refresh`).send({});
+        expect(response.statusCode).toBe(400);
+    }));
+});
+// ---- Auth Controller Edge Cases ----
+describe("Auth Controller Edge Cases", () => {
+    // Handle password hashing error
+    test("should handle password hashing error during registration", () => __awaiter(void 0, void 0, void 0, function* () {
+        const bcryptMock = jest
+            .spyOn(bcrypt_1.default, "genSalt")
+            .mockImplementationOnce(() => Promise.reject("Hashing failed"));
+        const response = yield (0, supertest_1.default)(app).post("/auth/register").send({
+            email: "test@error.com",
+            password: "123456",
+        });
+        expect(response.statusCode).toBe(400);
+        bcryptMock.mockRestore();
+    }));
+    // Handle token generation error during login
+    test("should handle token generation error during login", () => __awaiter(void 0, void 0, void 0, function* () {
+        const originalSecret = process.env.TOKEN_SECRET;
+        delete process.env.TOKEN_SECRET;
+        const response = yield (0, supertest_1.default)(app).post("/auth/login").send({
+            email: "test@test.com",
+            password: "123456",
+        });
+        expect(response.statusCode).toBe(400);
+        expect(response.text).toBe("incorrect email or password");
+        process.env.TOKEN_SECRET = originalSecret;
+    }));
+    // Handle database error during token refresh
+    test("should handle database error during token refresh", () => __awaiter(void 0, void 0, void 0, function* () {
+        // Register and login to get tokens
+        const userRes = yield (0, supertest_1.default)(app)
+            .post("/auth/register")
+            .send({
+            email: `test_${Date.now()}@test.com`,
+            password: "123456",
+        });
+        const loginRes = yield (0, supertest_1.default)(app).post("/auth/login").send({
+            email: userRes.body.email,
+            password: "123456",
+        });
+        // Mock DB error on save
+        jest.spyOn(user_model_1.default.prototype, "save").mockImplementationOnce(() => {
+            throw new Error("DB Error");
+        });
+        const response = yield (0, supertest_1.default)(app)
+            .post("/auth/refresh")
+            .send({ refreshToken: loginRes.body.refreshToken });
+        expect(response.statusCode).toBe(400);
+    }));
+    // Handle null refresh token
+    test("should handle null refresh token during validation", () => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield (0, supertest_1.default)(app)
+            .post("/auth/refresh")
+            .send({ refreshToken: null });
+        expect(response.statusCode).toBe(400);
+    }));
+    // Handle missing TOKEN_SECRET during token validation
+    test("should handle missing TOKEN_SECRET during token validation", () => __awaiter(void 0, void 0, void 0, function* () {
+        const originalSecret = process.env.TOKEN_SECRET;
+        // Register and login to get tokens
+        const user = yield (0, supertest_1.default)(app)
+            .post("/auth/register")
+            .send({
+            email: `test_${Date.now()}@test.com`,
+            password: "123456",
+        });
+        const loginRes = yield (0, supertest_1.default)(app).post("/auth/login").send({
+            email: user.body.email,
+            password: "123456",
+        });
+        // Remove TOKEN_SECRET
+        delete process.env.TOKEN_SECRET;
+        const response = yield (0, supertest_1.default)(app)
+            .post("/auth/refresh")
+            .send({ refreshToken: loginRes.body.refreshToken });
+        expect(response.statusCode).toBe(400);
+        // Restore TOKEN_SECRET
+        process.env.TOKEN_SECRET = originalSecret;
+    }));
+    // Handle invalid user ID in token during refresh
+    test("should handle invalid user ID in refresh token", () => __awaiter(void 0, void 0, void 0, function* () {
+        // Register a user
+        yield (0, supertest_1.default)(app)
+            .post("/auth/register")
+            .send({
+            email: `test_${Date.now()}@test.com`,
+            password: "123456",
+        });
+        // Create a fake token with a non-existing user ID
+        const fakeToken = jsonwebtoken_1.default.sign({
+            _id: new mongoose_1.default.Types.ObjectId().toString(),
+            rand: Math.random(),
+        }, process.env.TOKEN_SECRET || "default_secret", { expiresIn: "1h" });
+        const response = yield (0, supertest_1.default)(app)
+            .post("/auth/refresh")
+            .send({ refreshToken: fakeToken });
+        expect(response.statusCode).toBe(400);
+    }));
+    // Handle token verification error
+    test("should handle token verification error during refresh", () => __awaiter(void 0, void 0, void 0, function* () {
+        // Create a token with an incorrect secret
+        const invalidToken = jsonwebtoken_1.default.sign({
+            _id: new mongoose_1.default.Types.ObjectId().toString(),
+        }, "wrong_secret", { expiresIn: "1h" });
+        const response = yield (0, supertest_1.default)(app)
+            .post("/auth/refresh")
+            .send({ refreshToken: invalidToken });
+        expect(response.statusCode).toBe(400);
     }));
 });
 //# sourceMappingURL=auth.test.js.map

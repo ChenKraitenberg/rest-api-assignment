@@ -222,9 +222,13 @@
 <a name='L157'></a><a href='#L157'>157</a>
 <a name='L158'></a><a href='#L158'>158</a>
 <a name='L159'></a><a href='#L159'>159</a>
-<a name='L160'></a><a href='#L160'>160</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
+<a name='L160'></a><a href='#L160'>160</a>
+<a name='L161'></a><a href='#L161'>161</a>
+<a name='L162'></a><a href='#L162'>162</a>
+<a name='L163'></a><a href='#L163'>163</a>
+<a name='L164'></a><a href='#L164'>164</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -282,11 +286,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -316,11 +320,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -340,11 +344,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -378,9 +382,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import express from "express";
 const router = express.Router();
 import authController from "../controllers/authController";
@@ -392,6 +400,7 @@ import authController from "../controllers/authController";
 *   description: The Authentication API
 */
 &nbsp;
+&nbsp;
 /**
 * @swagger
 * components:
@@ -400,23 +409,28 @@ import authController from "../controllers/authController";
 *           type: http
 *           scheme: bearer
 *           bearerFormat: JWT
+*/
+&nbsp;
+/**
+* @swagger
+* components:
 *   schemas:
- *     User:
- *       type: object
- *       required:
- *         - email
- *         - password
- *       properties:
- *         email:
- *           type: string
- *           description: The user's email
- *         password:
- *           type: string
- *           description: The user's password
- *       example:
- *         email: user@example.com
- *         password: password123
- */
+*     User:
+*       type: object
+*       required:
+*         - email
+*         - password
+*       properties:
+*         email:
+*           type: string
+*           description: The user's email
+*         password:
+*           type: string
+*           description: The user's password
+*       example:
+*         email: 'bob@example.com'
+*         password: 'password123'
+*/
 &nbsp;
 &nbsp;
 /**
@@ -438,8 +452,6 @@ import authController from "../controllers/authController";
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
- *       400:
- *         description: Bad request
  */
 router.post("/register", authController.register);
 &nbsp;
@@ -465,10 +477,10 @@ router.post("/register", authController.register);
  *               properties:
  *                 accessToken:
  *                   type: string
- *                   description: Access token
+ *                   description: JWT Access token
  *                 refreshToken:
  *                   type: string
- *                   description: Refresh token
+ *                   description: JWT Refresh token
  *                 _id:
  *                   type: string
  *                   description: User ID
@@ -547,7 +559,7 @@ export default router;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-01-12T10:51:43.801Z
+                at 2025-01-15T12:59:01.902Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

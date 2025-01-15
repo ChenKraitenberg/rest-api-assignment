@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -32,33 +41,40 @@ const options = {
             version: "1.0.0",
             description: "REST server including authentication using JWT",
         },
-        servers: [{ url: "http://localhost:3000", },],
+        servers: [{ url: "http://localhost:3000" }],
     },
     apis: ["./src/routes/*.ts"],
 };
 const specs = (0, swagger_jsdoc_1.default)(options);
 app.use("/api-docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(specs));
 const initApp = () => {
-    return new Promise((resolve, reject) => {
-        const dbUri = process.env.DB_CONNECT;
-        // ודאי שהמשתנה DB_CONNECT קיים
-        if (!dbUri) {
-            console.error("Error: DB_CONNECT is not defined in the .env file");
-            reject(new Error("DB_CONNECT is not defined"));
-            return;
-        }
-        // חיבור למסד הנתונים
-        mongoose_1.default
-            .connect(dbUri)
-            .then(() => {
+    return new Promise((resolve, reject) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const dbUri = process.env.DB_CONNECT;
+            if (!dbUri) {
+                const error = new Error("DB_CONNECT is not defined");
+                //console.error(error.message);
+                reject(error);
+                return;
+            }
+            // אם כבר מחובר, אין צורך להתחבר שוב
+            if (mongoose_1.default.connection.readyState === 1) {
+                resolve(app);
+                return;
+            }
+            // אם יש חיבור בתהליך, נסגור אותו
+            if (mongoose_1.default.connection.readyState === 2) {
+                yield mongoose_1.default.connection.close();
+            }
+            yield mongoose_1.default.connect(dbUri);
             console.log("Connected to the database");
             resolve(app);
-        })
-            .catch((err) => {
+        }
+        catch (err) {
             console.error("Error connecting to the database:", err);
             reject(err);
-        });
-    });
+        }
+    }));
 };
 exports.default = initApp;
 //# sourceMappingURL=server.js.map

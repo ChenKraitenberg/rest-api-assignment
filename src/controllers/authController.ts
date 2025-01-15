@@ -199,4 +199,5 @@ export default {
   login,
   refresh,
   logout,
+  generateTokens,
 };

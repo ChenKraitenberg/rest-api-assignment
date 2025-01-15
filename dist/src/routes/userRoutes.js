@@ -84,7 +84,7 @@ router.get("/", userController_1.default.getAll.bind(userController_1.default));
  *         description: Bad request
  */
 router.get("/:id", userController_1.default.getById.bind(userController_1.default)); // שליפת משתמש לפי מזהה
-//router.post("/",authMiddleware, userController.create.bind(userController)); // יצירת משתמש חדש 
+//router.post("/", authMiddleware, userController.create.bind(userController)); // יצירת משתמש חדש
 /**
  * @swagger
  * /users/{id}:

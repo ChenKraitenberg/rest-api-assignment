@@ -1,9 +1,7 @@
-import exspress from 'express';
+import exspress from "express";
 const router = exspress.Router();
-import userController from '../controllers/userController';
-import { authMiddleware } from '../controllers/authController';
-
-
+import userController from "../controllers/userController";
+import { authMiddleware } from "../controllers/authController";
 
 /**
  * @swagger
@@ -86,8 +84,7 @@ router.get("/", userController.getAll.bind(userController)); // שליפת כל 
  */
 router.get("/:id", userController.getById.bind(userController)); // שליפת משתמש לפי מזהה
 
-
-//router.post("/",authMiddleware, userController.create.bind(userController)); // יצירת משתמש חדש 
+//router.post("/", authMiddleware, userController.create.bind(userController)); // יצירת משתמש חדש
 
 /**
  * @swagger
@@ -143,6 +140,10 @@ router.put("/:id", userController.update.bind(userController)); // עדכון מ
  *       401:
  *         description: Unauthorized
  */
-router.delete("/:id", authMiddleware, userController.delete.bind(userController)); // מחיקת משתמש קיים
+router.delete(
+  "/:id",
+  authMiddleware,
+  userController.delete.bind(userController)
+); // מחיקת משתמש קיים
 
 export default router;

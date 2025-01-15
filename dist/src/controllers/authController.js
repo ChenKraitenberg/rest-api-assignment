@@ -176,5 +176,6 @@ exports.default = {
     login,
     refresh,
     logout,
+    generateTokens,
 };
 //# sourceMappingURL=authController.js.map
