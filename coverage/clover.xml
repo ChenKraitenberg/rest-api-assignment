@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1736955705534" clover="3.2.0">
-  <project timestamp="1736955705534" name="All files">
+<coverage generated="1737037437245" clover="3.2.0">
+  <project timestamp="1737037437245" name="All files">
     <metrics statements="268" coveredstatements="254" conditionals="35" coveredconditionals="31" methods="31" coveredmethods="31" elements="334" coveredelements="316" complexity="0" loc="268" ncloc="268" packages="4" files="13" classes="13"/>
     <package name="src">
       <metrics statements="40" coveredstatements="40" conditionals="3" coveredconditionals="3" methods="3" coveredmethods="3"/>
-      <file name="server.ts" path="/Users/chenkraitenberg/rest-api-assignment2/src/server.ts">
+      <file name="server.ts" path="C:\Users\PC\Desktop\toar1\rest-api-assignment\src\server.ts">
         <metrics statements="40" coveredstatements="40" conditionals="3" coveredconditionals="3" methods="3" coveredmethods="3"/>
         <line num="1" count="5" type="stmt"/>
         <line num="2" count="5" type="stmt"/>
@@ -50,7 +50,7 @@
     </package>
     <package name="src.controllers">
       <metrics statements="177" coveredstatements="163" conditionals="32" coveredconditionals="28" methods="26" coveredmethods="26"/>
-      <file name="authController.ts" path="/Users/chenkraitenberg/rest-api-assignment2/src/controllers/authController.ts">
+      <file name="authController.ts" path="C:\Users\PC\Desktop\toar1\rest-api-assignment\src\controllers\authController.ts">
         <metrics statements="107" coveredstatements="100" conditionals="20" coveredconditionals="17" methods="17" coveredmethods="17"/>
         <line num="2" count="5" type="stmt"/>
         <line num="3" count="5" type="stmt"/>
@@ -160,7 +160,7 @@
         <line num="192" count="10" type="stmt"/>
         <line num="197" count="5" type="stmt"/>
       </file>
-      <file name="baseController.ts" path="/Users/chenkraitenberg/rest-api-assignment2/src/controllers/baseController.ts">
+      <file name="baseController.ts" path="C:\Users\PC\Desktop\toar1\rest-api-assignment\src\controllers\baseController.ts">
         <metrics statements="54" coveredstatements="47" conditionals="12" coveredconditionals="11" methods="7" coveredmethods="7"/>
         <line num="3" count="5" type="stmt"/>
         <line num="5" count="5" type="stmt"/>
@@ -217,14 +217,14 @@
         <line num="112" count="10" type="stmt"/>
         <line num="115" count="5" type="stmt"/>
       </file>
-      <file name="commentController.ts" path="/Users/chenkraitenberg/rest-api-assignment2/src/controllers/commentController.ts">
+      <file name="commentController.ts" path="C:\Users\PC\Desktop\toar1\rest-api-assignment\src\controllers\commentController.ts">
         <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="5" type="stmt"/>
         <line num="2" count="5" type="stmt"/>
         <line num="4" count="5" type="stmt"/>
         <line num="6" count="5" type="stmt"/>
       </file>
-      <file name="postsController.ts" path="/Users/chenkraitenberg/rest-api-assignment2/src/controllers/postsController.ts">
+      <file name="postsController.ts" path="C:\Users\PC\Desktop\toar1\rest-api-assignment\src\controllers\postsController.ts">
         <metrics statements="8" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
         <line num="2" count="5" type="stmt"/>
         <line num="3" count="5" type="stmt"/>
@@ -235,7 +235,7 @@
         <line num="17" count="5" type="stmt"/>
         <line num="21" count="5" type="stmt"/>
       </file>
-      <file name="userController.ts" path="/Users/chenkraitenberg/rest-api-assignment2/src/controllers/userController.ts">
+      <file name="userController.ts" path="C:\Users\PC\Desktop\toar1\rest-api-assignment\src\controllers\userController.ts">
         <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="5" type="stmt"/>
         <line num="2" count="5" type="stmt"/>
@@ -245,21 +245,21 @@
     </package>
     <package name="src.models">
       <metrics statements="12" coveredstatements="12" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-      <file name="comment_models.ts" path="/Users/chenkraitenberg/rest-api-assignment2/src/models/comment_models.ts">
+      <file name="comment_models.ts" path="C:\Users\PC\Desktop\toar1\rest-api-assignment\src\models\comment_models.ts">
         <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="5" type="stmt"/>
         <line num="9" count="5" type="stmt"/>
         <line num="26" count="5" type="stmt"/>
         <line num="28" count="5" type="stmt"/>
       </file>
-      <file name="posts_models.ts" path="/Users/chenkraitenberg/rest-api-assignment2/src/models/posts_models.ts">
+      <file name="posts_models.ts" path="C:\Users\PC\Desktop\toar1\rest-api-assignment\src\models\posts_models.ts">
         <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="5" type="stmt"/>
         <line num="9" count="5" type="stmt"/>
         <line num="21" count="5" type="stmt"/>
         <line num="23" count="5" type="stmt"/>
       </file>
-      <file name="user_model.ts" path="/Users/chenkraitenberg/rest-api-assignment2/src/models/user_model.ts">
+      <file name="user_model.ts" path="C:\Users\PC\Desktop\toar1\rest-api-assignment\src\models\user_model.ts">
         <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="5" type="stmt"/>
         <line num="11" count="5" type="stmt"/>
@@ -269,7 +269,7 @@
     </package>
     <package name="src.routes">
       <metrics statements="39" coveredstatements="39" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
-      <file name="authRoutes.ts" path="/Users/chenkraitenberg/rest-api-assignment2/src/routes/authRoutes.ts">
+      <file name="authRoutes.ts" path="C:\Users\PC\Desktop\toar1\rest-api-assignment\src\routes\authRoutes.ts">
         <metrics statements="8" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="5" type="stmt"/>
         <line num="2" count="5" type="stmt"/>
@@ -280,7 +280,7 @@
         <line num="161" count="5" type="stmt"/>
         <line num="163" count="5" type="stmt"/>
       </file>
-      <file name="commentsRoutes.ts" path="/Users/chenkraitenberg/rest-api-assignment2/src/routes/commentsRoutes.ts">
+      <file name="commentsRoutes.ts" path="C:\Users\PC\Desktop\toar1\rest-api-assignment\src\routes\commentsRoutes.ts">
         <metrics statements="11" coveredstatements="11" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="1" count="5" type="stmt"/>
         <line num="2" count="5" type="stmt"/>
@@ -289,12 +289,12 @@
         <line num="65" count="5" type="stmt"/>
         <line num="94" count="5" type="stmt"/>
         <line num="95" count="2" type="stmt"/>
-        <line num="123" count="5" type="stmt"/>
-        <line num="155" count="5" type="stmt"/>
-        <line num="185" count="5" type="stmt"/>
-        <line num="187" count="5" type="stmt"/>
+        <line num="154" count="5" type="stmt"/>
+        <line num="217" count="5" type="stmt"/>
+        <line num="247" count="5" type="stmt"/>
+        <line num="249" count="5" type="stmt"/>
       </file>
-      <file name="postsRoutes.ts" path="/Users/chenkraitenberg/rest-api-assignment2/src/routes/postsRoutes.ts">
+      <file name="postsRoutes.ts" path="C:\Users\PC\Desktop\toar1\rest-api-assignment\src\routes\postsRoutes.ts">
         <metrics statements="11" coveredstatements="11" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="1" count="5" type="stmt"/>
         <line num="2" count="5" type="stmt"/>
@@ -308,7 +308,7 @@
         <line num="237" count="5" type="stmt"/>
         <line num="243" count="5" type="stmt"/>
       </file>
-      <file name="userRoutes.ts" path="/Users/chenkraitenberg/rest-api-assignment2/src/routes/userRoutes.ts">
+      <file name="userRoutes.ts" path="C:\Users\PC\Desktop\toar1\rest-api-assignment\src\routes\userRoutes.ts">
         <metrics statements="9" coveredstatements="9" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="5" type="stmt"/>
         <line num="2" count="5" type="stmt"/>

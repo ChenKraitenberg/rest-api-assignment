@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 
 // טעינת משתני סביבה
-dotenv.config({ path: ".env.test" });
+dotenv.config({ path: ".env_test" });
 
 // הגדרת זמן מקסימלי לטסטים
 jest.setTimeout(30000);

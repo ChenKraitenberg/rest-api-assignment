@@ -16,7 +16,7 @@ const server_1 = __importDefault(require("../server"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const dotenv_1 = __importDefault(require("dotenv"));
 // טעינת משתני סביבה
-dotenv_1.default.config({ path: ".env.test" });
+dotenv_1.default.config({ path: ".env_test" });
 // הגדרת זמן מקסימלי לטסטים
 jest.setTimeout(30000);
 describe("Server initialization tests", () => {
