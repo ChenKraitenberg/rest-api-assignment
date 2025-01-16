@@ -113,11 +113,42 @@ router.get("/:id", (req, res) => {
  *     responses:
  *       201:
  *         description: Comment created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   description: The unique ID of the comment
+ *                 comment:
+ *                   type: string
+ *                   description: The content of the comment
+ *                 postId:
+ *                   type: string
+ *                   description: The ID of the post associated with the comment
+ *                 owner:
+ *                   type: string
+ *                   description: The user ID of the comment's owner
+ *               example:
+ *                 _id: "61d8c7e8a09c1f001e8d2f1a"
+ *                 comment: "This is a great post!"
+ *                 postId: "61d8c7e8a09c1f001e8d2f1b"
+ *                 owner: "61d8c7e8a09c1f001e8d2f1c"
  *       400:
  *         description: Bad request
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "ValidationError: Path `comment` is required."
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Access denied. Please provide a valid token."
  */
+
 
 // create comment
 router.post("/", authMiddleware, commentsController.create.bind(commentsController));
@@ -145,11 +176,42 @@ router.post("/", authMiddleware, commentsController.create.bind(commentsControll
  *     responses:
  *       200:
  *         description: Comment updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   description: The unique ID of the comment
+ *                 comment:
+ *                   type: string
+ *                   description: The content of the comment
+ *                 postId:
+ *                   type: string
+ *                   description: The ID of the post associated with the comment
+ *                 owner:
+ *                   type: string
+ *                   description: The user ID of the comment's owner
+ *               example:
+ *                 _id: "61d8c7e8a09c1f001e8d2f1a"
+ *                 comment: "Updated comment content"
+ *                 postId: "61d8c7e8a09c1f001e8d2f1b"
+ *                 owner: "61d8c7e8a09c1f001e8d2f1c"
  *       404:
  *         description: Comment not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Comment not found"
  *       400:
  *         description: Bad request
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "ValidationError: Path `comment` is required."
  */
+
 
 // update comment
 router.put("/:id", commentsController.update.bind(commentsController));
